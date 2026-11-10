@@ -7,6 +7,12 @@
 -- ============================================================
 -- private.settings needs: roster_fee_url (ROSTER-003 webhook), report_secret (random text). Never in the repo.
 
+-- "Charlotte L Murphy" -> "charlotte murphy" (first word + last word)
+create or replace function norm_name(n text) returns text language sql immutable as $$
+  select lower(split_part(trim(coalesce(n, '')), ' ', 1) || ' ' ||
+               coalesce((regexp_match(trim(coalesce(n, '')), '(\S+)$'))[1], ''))
+$$;
+
 create or replace function roster_fee_request() returns bigint
 language plpgsql security definer set search_path = public, private as $$
 declare req bigint; url text := private.setting('roster_fee_url');
@@ -36,10 +42,10 @@ begin
   end if;
   perform set_config('roster.quiet', 'on', true);
   with subs as (
-    select norm_email(s ->> 'email') em, lower(trim(s ->> 'name')) nm, s ->> 'status' st, s ->> 'created' created
+    select norm_email(s ->> 'email') em, norm_name(s ->> 'name') nm, s ->> 'status' st, s ->> 'created' created
       from jsonb_array_elements(body -> 'subs') s
   ), owe as (
-    select r.agent_id, norm_email(r.email) em, lower(trim(r.first || ' ' || r.last)) nm, r.fee_status from roster r
+    select r.agent_id, norm_email(r.email) em, norm_name(r.first || ' ' || r.last) nm, r.fee_status from roster r
      where r.status = 'active' and r.office in ('Bow', 'FR')
   ), mapped as (
     select o.agent_id, o.fee_status old,
@@ -66,7 +72,7 @@ begin
   select coalesce(jsonb_agg(s), '[]') into unmatched from jsonb_array_elements(body -> 'subs') s
    where not exists (select 1 from roster r where r.status = 'active' and r.office in ('Bow', 'FR')
                        and ((norm_email(r.email) <> '' and norm_email(r.email) = norm_email(s ->> 'email'))
-                         or lower(trim(r.first || ' ' || r.last)) = lower(trim(s ->> 'name'))));
+                         or norm_name(r.first || ' ' || r.last) = norm_name(s ->> 'name')));
   insert into private.settings values ('fee_unmatched', unmatched::text) on conflict (key) do update set value = excluded.value;
   delete from private.settings where key in ('roster_fee_request', 'fee_last_error');
   perform set_config('roster.quiet', 'off', true);
