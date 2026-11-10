@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Blue Ribbon CRM</title>
+<title>My Blue Ribbon</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root { --navy:#1F3A68; --navy2:#142847; --ink:#1A1D23; --muted:#5B616B; --line:#E1E4E9; --bg:#F4F5F7; --hot:#8A3B00; --hotbg:#FFE9D6; --late:#A3290F; --latebg:#FDE8E4; --ok:#1E6B3A; --side:#14213A; }
@@ -87,6 +87,42 @@
   label.ck { display:flex; align-items:center; gap:10px; font-weight:600; margin:14px 0 4px; min-height:44px }
   label.ck input { width:24px; height:24px; flex:none }
 
+  /* ---------- My Blue Ribbon pieces ---------- */
+  .uc { background:#FFD84D; color:#3A2C00; padding:14px 24px; font-size:19px; font-weight:700; border-bottom:2px solid #E0B400 }
+  .uc span { display:block; font-size:15px; font-weight:400 }
+  .switch { display:grid; grid-template-columns:1fr 1fr; margin:0 14px 12px; background:rgba(255,255,255,.08); border-radius:12px; padding:4px }
+  .switch a { text-align:center; padding:10px 6px; border-radius:9px; color:#fff; text-decoration:none; font-size:15px; font-weight:600; opacity:.75 }
+  .switch a.on { background:#fff; color:var(--side); opacity:1 }
+  .brokerbar { background:#E8EEF8; border:1px solid #C9D6EC; border-radius:12px; padding:12px 16px; margin-bottom:14px }
+  .pipe { display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:16px }
+  .pipe a { padding:12px 10px; text-decoration:none; color:inherit; border-right:1px solid #EEF0F3 }
+  .pipe a:last-child { border-right:0 }
+  .pipe b { display:block; font-size:28px; line-height:1.1 } .pipe span { color:var(--muted); font-size:14px }
+  .pipe a.hot b { color:#C25B12 }
+  .score { display:grid; grid-template-columns:minmax(0,1.1fr) repeat(5, minmax(0,1fr)); gap:10px; margin-bottom:16px }
+  .score .s { background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 14px; text-decoration:none; color:inherit }
+  .score .s b { display:block; font-size:28px; line-height:1.1 } .score .s span { color:var(--muted); font-size:14px }
+  .score .big b { font-size:40px } .score .warn b { color:var(--late) }
+  .crmgrid { display:grid; grid-template-columns:230px minmax(0,1fr); gap:16px; align-items:start }
+  .filters { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px }
+  .filters h3 { font-size:14px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:14px 0 6px }
+  .filters h3:first-child { margin-top:0 }
+  .filters a { display:block; padding:7px 0; text-decoration:none; color:var(--ink) } .filters a.on { font-weight:700; color:var(--navy) }
+  .tr.d7 { grid-template-columns:minmax(0,1.8fr) minmax(0,.7fr) minmax(0,.9fr) minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.1fr) minmax(0,1.1fr) }
+  .tr.d5 { grid-template-columns:minmax(0,1.8fr) minmax(0,.9fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) }
+  .pill { display:inline-block; font-size:13px; font-weight:700; padding:3px 9px; border-radius:12px; background:#E3EAF5; color:var(--navy); white-space:nowrap }
+  .stages { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 4px }
+  .stages button { padding:10px 14px; border:1px solid #C9CED6; border-radius:10px; color:var(--ink); background:#fff; min-height:44px; font:16px Inter, system-ui, sans-serif; cursor:pointer }
+  .stages button.on { background:var(--navy); color:#fff; border-color:var(--navy); font-weight:600 }
+  .mtiles { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px }
+  .mtile { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:6px }
+  .mtile h3 { margin:0; font-size:19px } .mtile p { margin:0; color:#3A3F48 }
+  .mtile .btn { margin-top:auto; align-self:flex-start } .mtile.soon { opacity:.6 } .mtile.soon .btn { background:#9AA3AF; cursor:default }
+  .sechead { font-size:15px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:22px 0 10px }
+  .sechead:first-child { margin-top:0 }
+  .modal { position:fixed; inset:0; background:rgba(10,16,30,.55); display:none; align-items:flex-start; justify-content:center; padding:40px 16px; z-index:50; overflow:auto }
+  .modal.open { display:flex } .modal .panel { width:min(560px,100%) }
+
   /* ---------- Phone: menu slides in, tiles 2x2, table stacks ---------- */
   @media (max-width: 860px) {
     .side { position:fixed; inset:0 auto 0 0; z-index:20; transform:translateX(-100%); transition:transform .2s; box-shadow:4px 0 20px rgba(0,0,0,.25) }
@@ -101,17 +137,24 @@
     .tr { grid-template-columns:1fr; gap:2px } .th { display:none }
     .tr .c-stage, .tr .c-src { display:none }
     .tr.rr { grid-template-columns:1fr } .grid2, .grid3 { grid-template-columns:1fr }
+    .uc { padding:12px 16px; font-size:17px }
+    .pipe { grid-template-columns:repeat(4, minmax(0,1fr)) } .pipe a { border-bottom:1px solid #EEF0F3 }
+    .score { grid-template-columns:repeat(2, minmax(0,1fr)) }
+    .crmgrid { grid-template-columns:1fr } .crmgrid .filters { order:2 }
+    .tr.d7, .tr.d5 { grid-template-columns:1fr } .mtiles { grid-template-columns:1fr }
   }
 </style>
 </head>
 <body>
 <div class="shell">
   <aside class="side" id="side" aria-label="Menu">
-    <div class="brand">Blue Ribbon<small>CRM</small></div>
+    <div class="brand">My Blue Ribbon<small>Blue Ribbon Real Estate</small></div>
+    <div class="switch" id="switch" style="display:none"></div>
     <nav class="nav" id="nav"></nav>
     <div class="foot" id="foot"></div>
   </aside>
   <div class="mainwrap">
+    <div class="uc" id="uc">UNDER CONSTRUCTION<span>These screens are being built. Lead alerts, the office pond and the agent roster work today. On hold until Tracy finishes looking at Lone Wolf.</span></div>
     <div class="topbar">
       <button class="menubtn" id="menubtn" aria-label="Open menu">☰ Menu</button>
       <h1 id="title">Blue Ribbon CRM</h1>
@@ -122,6 +165,7 @@
     <main id="app"></main>
   </div>
 </div>
+<div class="modal" id="ucm" role="dialog" aria-modal="true" aria-labelledby="ucmT"><div class="panel" id="ucmBody"></div></div>
 
 <script type="module">
 // ============================================================
@@ -143,7 +187,13 @@ const fmtWhen = d => new Date(d).toLocaleString("en-US", { weekday:"short", mont
 const ago = d => { if (!d) return "never"; const m = Math.round((Date.now() - new Date(d)) / 60000);
   return m < 60 ? m + " min ago" : m < 1440 ? Math.round(m/60) + " hr ago" : Math.round(m/1440) + " days ago"; };
 const fullName = c => (`${c.first_name || ""} ${c.last_name || ""}`).trim() || c.email || "No name";
-const STAGES = { new_lead:"New lead", active:"Active", client:"Client", under_contract:"Under contract", closed:"Closed", sphere:"Sphere", dead:"Not interested" };
+// Follow Up Boss-style stages (stored codes kept from the first build: new_lead = Lead, active = Contacted, sphere = Nurture)
+const STAGES = { new_lead:"Lead", active:"Contacted", appointment:"Appointment", showing:"Showing", client:"Client", under_contract:"Under contract", closed:"Closed", sphere:"Nurture", dead:"Dead" };
+const STAGE_BTNS = ["new_lead","active","appointment","showing","under_contract","closed","sphere","dead"];
+const money = v => v == null || v === "" ? "—" : "$" + Number(v).toLocaleString("en-US", { maximumFractionDigits:0 });
+const fmtDate = d => d ? new Date(d + "T12:00:00").toLocaleDateString("en-US", { month:"2-digit", day:"2-digit", year:"numeric" }) : "—";
+const DEAL_ST = { under_contract:"Under contract", closed:"Closed", fell_through:"Fell through" };
+const SIDES = { buyer:"Buyer", listing:"Listing", both:"Both sides" };
 // End and start of today in Eastern time, as real moments
 const etNow = () => new Date(new Date().toLocaleString("en-US", { timeZone:TZ }));
 const endOfToday = () => { const e = etNow(); const d = new Date(e); d.setHours(23,59,59,999); return new Date(Date.now() + (d - e)); };
@@ -151,7 +201,7 @@ const startOfToday = () => { const e = etNow(); const d = new Date(e); d.setHour
 const d30 = () => new Date(Date.now() - 30*86400000).toISOString();
 const d7 = () => new Date(Date.now() - 7*86400000).toISOString();
 
-let ME = null, PONDS = [], OFFICES = [];
+let ME = null, PONDS = [], OFFICES = [], SET = { broker_message:"", links:{} };
 
 $("menubtn").onclick = () => side.classList.toggle("open");
 $("search").addEventListener("keydown", e => { if (e.key === "Enter") location.hash = "#/crm/all/" + encodeURIComponent(e.target.value.trim()); });
@@ -184,35 +234,36 @@ async function counts() {
   return { need:need.count||0, hot:hot.count||0, today:today.count||0, late:late.count||0, pond:pond.count||0, crm:crm.count||0 };
 }
 
+// Menu slots: each one opens our page, or a link the broker sets on Brokerage > Desk settings
+const ME_MENU = [
+  ["today", "#/", "Today"], ["crm", "#/crm", "My CRM"], ["desk", "#/desk", "My Commissions & Compliance Desk"],
+  ["closed", "#/closed", "My Closed Properties"], ["marketing", "#/marketing", "My Marketing (Listings & Farming)"],
+  ["tasks", "#/tasks", "My Tasks"], ["tools", "https://tools.ribbonway.com/home", "Tools"] ];
 async function chrome(title, active) {
   $("title").textContent = title;
   side.classList.remove("open");
+  tilesEl.innerHTML = "";
   const n = ME.staff ? { need:0, hot:0, today:0, late:0, pond:0, crm:0 } : await counts();
-  const link = (h, label, key, count) => `<a href="${h}" class="${active === key ? "on" : ""}">${label}${count != null ? `<span class="count">${count}</span>` : ""}</a>`;
-  navEl.innerHTML = ME.staff ?
-    `<div class="navgroup">Admin</div>` + link("#/admin/agents", "Agent roster", "a-agents") +
-    `<a href="https://tools.ribbonway.com/home" target="_blank" rel="noopener">Tools<span class="count">↗</span></a>` +
-    `<a href="https://cda.ribbonway.com" target="_blank" rel="noopener">CDA<span class="count">↗</span></a>` :
-    link("#/crm", "My CRM", "crm", n.crm) +
-    link("#/", "My Priorities", "prio", n.hot + n.today + n.late) +
-    link("#/tasks", "Tasks", "tasks", n.today + n.late) +
-    link("#/pond", "Office pond", "pond", n.pond) +
-    `<a href="https://tools.ribbonway.com/home" target="_blank" rel="noopener">Tools<span class="count">↗</span></a>` +
-    `<a href="https://cda.ribbonway.com" target="_blank" rel="noopener">CDA<span class="count">↗</span></a>` +
-    (ME.boss ? `<div class="navgroup">Admin</div>` +
-      link("#/admin/agents", "Agent roster", "a-agents") +
-      link("#/admin", "Who needs a nudge", "a-nudge") + link("#/admin/flow", "Where leads go", "a-flow") +
-      link("#/admin/plans", "Follow-up plans", "a-plans") + link("#/admin/emails", "Held emails", "a-emails") : "");
+  const link = (h, label, key, count) => {
+    const ext = h.startsWith("http");
+    return `<a href="${esc(h)}" ${ext ? 'target="_blank" rel="noopener"' : ""} class="${active === key ? "on" : ""}">${label}${ext ? `<span class="count">↗</span>` : count ? `<span class="count">${count}</span>` : ""}</a>`; };
+  const brokerSide = active.startsWith("a-") || active === "pond-b";
+  // The "My Blue Ribbon | Brokerage" switch: broker and admin only
+  const sw = $("switch");
+  if (ME.boss) { sw.style.display = "";
+    sw.innerHTML = `<a href="#/" class="${brokerSide ? "" : "on"}">My Blue Ribbon</a><a href="#/admin" class="${brokerSide ? "on" : ""}">Brokerage</a>`; }
+  else sw.style.display = "none";
+  const counts_ = { crm:n.need + n.hot, tasks:n.today + n.late };
+  if (ME.staff) navEl.innerHTML = link("#/admin/agents", "Agent roster", "a-agents") + link("https://tools.ribbonway.com/home", "Tools") + link("https://cda.ribbonway.com", "CDA");
+  else if (brokerSide) navEl.innerHTML =
+      link("#/admin/agents", "Agent roster", "a-agents") + link("#/admin", "Who needs a nudge", "a-nudge") +
+      link("#/admin/flow", "Lead routing", "a-flow") + link("#/admin/ponds", "Ponds", "pond-b", n.pond) +
+      link("#/admin/plans", "Follow-up plans", "a-plans") + link("https://cda.ribbonway.com/compliance/", "Compliance") +
+      link("#/admin/emails", "Held emails", "a-emails") + link("#/admin/desk", "Desk settings", "a-desk");
+  else navEl.innerHTML = ME_MENU.map(([k, h, label]) => link(SET.links[k] || h, label, k, counts_[k])).join("");
   $("foot").innerHTML = `${esc(ME.full_name)}<br><a href="#" id="signout">Sign out</a>`;
   $("signout").onclick = async e => { e.preventDefault(); await sb.auth.signOut(); location.hash = ""; location.reload(); };
   $("who").textContent = etNow().toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
-  const tile = (h, cls, num, label, key) => `<a class="tile ${cls} ${active === key ? "on" : ""}" href="${h}"><b>${num}</b><span>${label}</span></a>`;
-  if (ME.staff || active === "a-agents") { tilesEl.innerHTML = ""; return; }
-  tilesEl.innerHTML =
-    tile("#/crm/need", "need", n.need, "Needs contacted", "crm-need") +
-    tile("#/crm/hot", "hot", n.hot, "Hot leads", "crm-hot") +
-    tile("#/tasks", "", n.today, "Due today", "tasks") +
-    tile("#/tasks", "late", n.late, "Overdue", "tasks-late");
 }
 
 const leadCard = c => `
@@ -222,22 +273,39 @@ const leadCard = c => `
     <div class="meta">${esc(c.source || "Lead")} · came in ${ago(c.created_at)}</div>
   </a>`;
 
-// ---------------- My Priorities (home) ----------------
-async function showPriorities() {
-  await chrome("My Priorities", "prio");
-  app.innerHTML = `<div class="cols">
-      <div class="panel"><h2>Call these first</h2><div id="hot"><p class="empty">Loading…</p></div></div>
-      <div class="panel"><h2>Due today</h2><div id="today"><p class="empty">Loading…</p></div></div>
-    </div>
-    <div class="panel" style="margin-top:20px"><h2>Needs contacted</h2><div id="need"><p class="empty">Loading…</p></div></div>`;
-  const [{ data: hot }, { data: need }] = await Promise.all([
-    sb.from("contacts").select("*").eq("owner_agent_id", ME.id).eq("is_hot", true).order("hot_at", { ascending:false }).limit(10),
-    sb.from("contacts").select("*").eq("owner_agent_id", ME.id).is("first_contacted_at", null).not("stage","in","(closed,dead)").order("created_at", { ascending:false }).limit(10),
-  ]);
-  $("hot").innerHTML = hot?.length ? hot.map(leadCard).join("") : `<p class="empty">No hot leads right now.</p>`;
-  $("need").innerHTML = need?.length ? need.map(leadCard).join("") : `<p class="empty">Everyone on your list has been contacted.</p>`;
+// ---------------- Today (home): broker message, pipeline strip, my deals, who to contact ----------------
+async function stageCounts() {
+  const mine = () => sb.from("contacts").select("id", { count:"exact", head:true }).eq("owner_agent_id", ME.id);
+  const yr = new Date(etNow().getFullYear(), 0, 1).toISOString();
+  const r = await Promise.all([ mine().eq("is_hot", true), mine().eq("stage","new_lead"), mine().eq("stage","active"),
+    mine().eq("stage","appointment"), mine().in("stage",["showing","client"]),
+    sb.from("deals").select("id", { count:"exact", head:true }).eq("agent_id", ME.id).eq("status","under_contract"),
+    sb.from("deals").select("id", { count:"exact", head:true }).eq("agent_id", ME.id).eq("status","closed").gte("closed_at", yr) ]);
+  return r.map(x => x.count || 0);
+}
+async function showToday() {
+  await chrome("Today", "today");
+  const [hot, lead, contacted, appt, showing, uc, closed] = await stageCounts();
+  const p = (h, cls, num, label) => `<a class="${cls}" href="${h}"><b>${num}</b><span>${label}</span></a>`;
+  app.innerHTML = `${SET.broker_message ? `<div class="brokerbar"><strong>From Tracy:</strong> ${esc(SET.broker_message)}</div>` : ""}
+    <div class="pipe">${p("#/crm/hot","hot",hot,"Hot")}${p("#/crm/s-new_lead","",lead,"Lead")}${p("#/crm/s-active","",contacted,"Contacted")}${p("#/crm/s-appointment","",appt,"Appointment")}${p("#/crm/s-showing","",showing,"Showing")}${p("#/desk","",uc,"Under contract")}${p("#/closed","",closed,"Closed (" + etNow().getFullYear() + ")")}</div>
+    <div class="cols">
+      <div><h2>My deals</h2><div id="deals"><p class="empty">Loading…</p></div></div>
+      <div class="panel"><h2>Contact today</h2><div id="hot"><p class="empty">Loading…</p></div>
+        <h2>Due today</h2><div id="today"><p class="empty">Loading…</p></div></div>
+    </div>`;
+  const [{ data: deals }, { data: hotL }, { data: need }] = await Promise.all([
+    sb.from("deals").select("*").eq("agent_id", ME.id).eq("status","under_contract").order("closing_date").limit(20),
+    sb.from("contacts").select("*").eq("owner_agent_id", ME.id).eq("is_hot", true).order("hot_at", { ascending:false }).limit(6),
+    sb.from("contacts").select("*").eq("owner_agent_id", ME.id).is("first_contacted_at", null).not("stage","in","(closed,dead)").order("created_at", { ascending:false }).limit(6) ]);
+  $("deals").innerHTML = dealTable(deals, "No deals under contract. When a lead goes Under contract, it shows up here.");
+  const people = [...(hotL || []), ...(need || []).filter(c => !(hotL || []).some(h => h.id === c.id))];
+  $("hot").innerHTML = people.length ? people.map(leadCard).join("") + `<a href="#/crm">See everyone →</a>` : `<p class="empty">Nobody new or hot right now.</p>`;
   await taskList($("today"), true);
 }
+const dealTable = (rows, emptyText) => rows?.length ? `<div class="tbl"><div class="tr th d5"><span>Property</span><span>Side</span><span>Status</span><span>Closing</span><span>Price</span></div>` +
+  rows.map(d => `<a class="tr d5" href="#/desk"><span class="nm">${esc(d.address)}</span><span>${SIDES[d.side] || d.side}</span><span>${DEAL_ST[d.status] || d.status}</span><span>${fmtDate(d.closing_date)}</span><span>${money(d.price)}</span></a>`).join("") + `</div>`
+  : `<p class="empty">${emptyText}</p>`;
 
 // ---------------- Tasks ----------------
 async function taskList(box, todayOnly) {
@@ -262,14 +330,44 @@ async function showTasks() {
   await taskList($("tl"), false);
 }
 
-// ---------------- My CRM (lead table with smart lists) ----------------
-const LISTS = { all:"All my leads", need:"Needs contacted", hot:"Hot", new:"New (7 days)", quiet:"No contact 30 days" };
+// ---------------- My CRM: scorecard on top, filters left, table right ----------------
+const LISTS = { all:"All my people", need:"New & needs contact", hot:"Hot", new:"New this week", quiet:"No contact 30 days", noplan:"Not on a follow-up plan" };
+async function crmScore() {
+  const mine = () => sb.from("contacts").select("id", { count:"exact", head:true }).eq("owner_agent_id", ME.id);
+  const in30 = new Date(Date.now() + 30*86400000).toLocaleDateString("en-CA", { timeZone:TZ });
+  const [tot30, done30, need, hotRows, late, open, enr, closing] = await Promise.all([
+    mine().gte("created_at", d30()), mine().gte("created_at", d30()).not("first_contacted_at","is",null),
+    mine().is("first_contacted_at", null).not("stage","in","(closed,dead)"),
+    sb.from("contacts").select("hot_at, last_contacted_at").eq("owner_agent_id", ME.id).eq("is_hot", true).limit(500),
+    sb.from("tasks").select("id", { count:"exact", head:true }).eq("agent_id", ME.id).eq("status","open").lt("due_at", startOfToday().toISOString()),
+    sb.from("contacts").select("id").eq("owner_agent_id", ME.id).not("stage","in","(closed,dead)").limit(2000),
+    sb.from("enrollments").select("contact_id").eq("status","active").limit(5000),
+    sb.from("deals").select("id", { count:"exact", head:true }).eq("agent_id", ME.id).eq("status","under_contract").lte("closing_date", in30) ]);
+  const onPlan = new Set((enr.data || []).map(e => e.contact_id));
+  return { score: tot30.count ? Math.round(100 * (done30.count || 0) / tot30.count) : null, need: need.count || 0,
+    hotNeed: (hotRows.data || []).filter(c => !c.last_contacted_at || new Date(c.last_contacted_at) < new Date(c.hot_at)).length,
+    late: late.count || 0, noPlan: (open.data || []).filter(c => !onPlan.has(c.id)).map(c => c.id), closing: closing.count || 0 };
+}
 async function showCrm(list = "all", term = "") {
-  await chrome("My CRM", list === "need" ? "crm-need" : list === "hot" ? "crm-hot" : "crm");
+  await chrome("My CRM", "crm");
   if (term) $("search").value = term;
-  app.innerHTML = `<div class="chips">${Object.entries(LISTS).map(([k, v]) => `<a class="chip ${k === list && !term ? "on" : ""}" href="#/crm/${k}">${v}</a>`).join("")}</div>
-    ${term ? `<p class="note">Search: "${esc(term)}" · <a href="#/crm">clear</a></p>` : ""}
-    <div id="tbl"><p class="empty">Loading…</p></div>`;
+  const sc = await crmScore();
+  const sq = (h, cls, num, label) => `<a class="s ${cls}" href="${h}"><b>${num}</b><span>${label}</span></a>`;
+  const f = (h, label, key) => `<a href="${h}" class="${key === list && !term ? "on" : ""}">${label}</a>`;
+  app.innerHTML = `<div class="score">
+      ${sq("#/crm/new", "big " + (sc.score != null && sc.score < 80 ? "warn" : ""), sc.score == null ? "—" : sc.score + "%", "Follow-up score · new leads contacted, last 30 days")}
+      ${sq("#/crm/need", sc.need ? "warn" : "", sc.need, "New & needs contact")}
+      ${sq("#/crm/hot", sc.hotNeed ? "warn" : "", sc.hotNeed, "Hot & needs contact")}
+      ${sq("#/tasks", sc.late ? "warn" : "", sc.late, "Past-due tasks")}
+      ${sq("#/crm/noplan", "", sc.noPlan.length, "Not on a follow-up plan")}
+      ${sq("#/desk", "", sc.closing, "Closing in 30 days")}</div>
+    <div class="crmgrid">
+      <div class="filters"><h3>Saved views</h3>${Object.entries(LISTS).map(([k, v]) => f("#/crm/" + k, v, k)).join("")}
+        <h3>Ponds</h3><a href="#/pond">Office pond — leads waiting</a>
+        <h3>Stage</h3>${STAGE_BTNS.map(k => f("#/crm/s-" + k, STAGES[k], "s-" + k)).join("")}</div>
+      <div>${term ? `<p class="note">Search: "${esc(term)}" · <a href="#/crm">clear</a></p>` : `<h2 style="margin-top:4px">${esc(list.startsWith("s-") ? STAGES[list.slice(2)] || "" : LISTS[list] || "")}</h2>`}
+        <div id="tbl"><p class="empty">Loading…</p></div></div>
+    </div>`;
   let q = sb.from("contacts").select("id, first_name, last_name, email, stage, source, is_hot, hot_reason, created_at, last_contacted_at, first_contacted_at, pond_id");
   if (term) q = q.or(`first_name.ilike.%${term}%,last_name.ilike.%${term}%,email.ilike.%${term}%`).order("created_at", { ascending:false });
   else {
@@ -278,10 +376,12 @@ async function showCrm(list = "all", term = "") {
     else if (list === "hot") q = q.eq("is_hot", true).order("hot_at", { ascending:false });
     else if (list === "new") q = q.gte("created_at", d7()).order("created_at", { ascending:false });
     else if (list === "quiet") q = q.not("stage","in","(closed,dead)").or(`last_contacted_at.is.null,last_contacted_at.lt.${d30()}`).lt("created_at", d30()).order("last_contacted_at", { ascending:true, nullsFirst:true });
+    else if (list === "noplan") q = q.in("id", sc.noPlan.slice(0, 300).length ? sc.noPlan.slice(0, 300) : ["00000000-0000-0000-0000-000000000000"]).order("created_at", { ascending:false });
+    else if (list.startsWith("s-")) q = q.in("stage", list === "s-showing" ? ["showing","client"] : [list.slice(2)]).order("updated_at", { ascending:false });
     else q = q.order("created_at", { ascending:false });
   }
   const { data: rows } = await q.limit(200);
-  if (!rows?.length) { $("tbl").innerHTML = `<p class="empty">No leads in this list.</p>`; return; }
+  if (!rows?.length) { $("tbl").innerHTML = `<p class="empty">Nobody in this list.</p>`; return; }
   $("tbl").innerHTML = `<div class="tbl"><div class="tr th"><span>Name</span><span>Stage</span><span>What's going on</span><span>Source</span><span>Last contact</span></div>` +
     rows.map(c => `<a class="tr" href="#/p/${c.id}">
       <span class="nm">${esc(fullName(c))} ${c.is_hot ? `<span class="tag">HOT</span>` : c.pond_id ? `<span class="tag pond">POND</span>` : !c.first_contacted_at ? `<span class="tag need">NEW</span>` : ""}</span>
@@ -292,8 +392,8 @@ async function showCrm(list = "all", term = "") {
 }
 
 // ---------------- Office pond ----------------
-async function showPond() {
-  await chrome("Office pond", "pond");
+async function showPond(active = "pond") {
+  await chrome(active === "pond-b" ? "Ponds" : "Office pond", active);
   app.innerHTML = `<p class="note narrow">Office leads waiting for an agent. Open one and tap "Take this lead." If you don't contact it within 48 hours, it goes back to the pond.</p><div id="pl" class="narrow"></div>`;
   const { data: rows } = await sb.from("contacts").select("*").not("pond_id","is",null).order("created_at", { ascending:false }).limit(100);
   $("pl").innerHTML = rows?.length ? rows.map(leadCard).join("") : `<p class="empty">The office pond is empty.</p>`;
@@ -323,6 +423,7 @@ async function showPerson(id) {
         <div class="panel">
           <div class="meta" style="margin:0">${esc(STAGES[c.stage] || c.stage)} · ${esc(c.source || "Lead")}${inPond ? " · in the office pond" : ""}</div>
           ${c.hot_reason ? `<div class="hotbar">${esc(c.hot_reason)}</div>` : ""}
+          ${inPond ? "" : `<div class="stages" aria-label="Stage">${STAGE_BTNS.map(k => `<button data-stage="${k}" class="${(c.stage === k || (k === "showing" && c.stage === "client")) ? "on" : ""}">${STAGES[k]}</button>`).join("")}</div><p id="smsg" class="msg" style="margin:0"></p>`}
           ${inPond ? `<p><button class="btn" id="claim">Take this lead</button></p><p id="cmsg" class="msg"></p>` : `
           <div class="btns">
             ${c.phone ? `<a class="btn" href="tel:${esc(c.phone)}">Call</a>` : `<span class="btn" style="opacity:.4" aria-disabled="true">Call</span>`}
@@ -348,7 +449,33 @@ async function showPerson(id) {
     const { data } = await sb.rpc("claim_lead", { p_contact: id });
     if (data?.ok) showPerson(id); else { const m = $("cmsg"); m.className = "msg bad"; m.textContent = "Couldn't take it: " + (data?.error || "try again"); }
   };
-  else $("logbtn").onclick = () => showLogForm(id);
+  else {
+    $("logbtn").onclick = () => showLogForm(id);
+    app.querySelectorAll("[data-stage]").forEach(b => b.onclick = () => b.dataset.stage === "under_contract" ? underContract(c) : setStage(c.id, b.dataset.stage));
+  }
+}
+
+// Stage change. "Under contract" asks for 3 things; the bots fill in the rest later.
+async function setStage(id, stage, extra = {}) {
+  const { data, error } = await sb.rpc("set_stage", { p_contact:id, p_stage:stage, ...extra });
+  if (data?.ok) { $("ucm").classList.remove("open"); return showPerson(id); }
+  const m = $("ucm").classList.contains("open") ? $("umsg") : $("smsg");
+  m.className = "msg bad"; m.textContent = "Didn't save: " + (data?.error || error?.message || "try again");
+}
+function underContract(c) {
+  $("ucmBody").innerHTML = `<h2 id="ucmT">Under contract — ${esc(fullName(c))}</h2>
+    <p class="note">Three boxes. The rest (MLS #, paperwork, CDA) fills in from Bright, zipForm and dotloop.</p>
+    <label for="u1">Property address</label><input type="text" id="u1" autocomplete="off">
+    <label for="u2">Contract price</label><input type="text" id="u2" inputmode="numeric" placeholder="289000">
+    <label for="u3">Closing date</label><input type="date" id="u3">
+    <label for="u4">Side</label><select id="u4"><option value="buyer">Buyer</option><option value="listing">Listing</option><option value="both">Both sides</option></select>
+    <p style="margin-top:16px"><button class="btn" id="usave">Save — add to my Desk</button> <button class="btn ghost" id="ucancel">Cancel</button></p><p id="umsg" class="msg"></p>`;
+  $("ucm").classList.add("open"); $("u1").focus();
+  $("ucancel").onclick = () => $("ucm").classList.remove("open");
+  $("usave").onclick = () => {
+    const price = Number(String($("u2").value).replace(/[^0-9.]/g, ""));
+    setStage(c.id, "under_contract", { p_address:$("u1").value, p_price: price || null, p_close:$("u3").value || null, p_side:$("u4").value });
+  };
 }
 
 function showLogForm(id) {
@@ -366,6 +493,76 @@ function showLogForm(id) {
       p_contact:id, p_kind:$("lk").value, p_body:$("lb").value,
       p_next_title:$("lt").value, p_next_due: due ? new Date(due + "T09:00:00").toISOString() : null });
     if (data?.ok) showPerson(id); else { const m = $("lmsg"); m.className = "msg bad"; m.textContent = "Didn't save: " + (data?.error || error?.message || "try again"); }
+  };
+}
+
+// ---------------- My Commissions & Compliance Desk ----------------
+async function showDesk() {
+  await chrome("My Commissions & Compliance Desk", "desk");
+  const yr = new Date(etNow().getFullYear(), 0, 1).toISOString();
+  const { data: deals } = await sb.from("deals").select("*").eq("agent_id", ME.id).neq("status","fell_through").order("created_at", { ascending:false }).limit(200);
+  const closedYr = (deals || []).filter(d => d.status === "closed" && d.closed_at >= yr), uc = (deals || []).filter(d => d.status === "under_contract");
+  const sum = a => a.reduce((t, d) => t + Number(d.price || 0), 0);
+  app.innerHTML = `<p><a class="btn" href="${esc(SET.links.cda || "https://cda.ribbonway.com")}" target="_blank" rel="noopener">Start a CDA (only if the deal is not in Bright)</a></p>
+    <p class="note" style="margin-top:-6px">The office starts the CDA for every deal that is in Bright. You only start one for a deal Bright doesn't have, like a rental or an off-MLS sale.</p>
+    <div class="grid2" style="max-width:720px;margin-bottom:16px">
+      <div class="stat"><b>${closedYr.length}</b>Closed in ${etNow().getFullYear()} · ${money(sum(closedYr))} in sales</div>
+      <div class="stat"><b>${uc.length}</b>Under contract · ${money(sum(uc))} in sales</div></div>
+    <h2>Every deal, contract to closed</h2>
+    ${(deals || []).length ? `<div class="tbl"><div class="tr th d7"><span>Property</span><span>Side</span><span>Status</span><span>Closing</span><span>Price</span><span>Paperwork</span><span>CDA · my payout</span></div>` +
+      deals.map(d => `<div class="tr d7"><span class="nm">${esc(d.address)}</span><span>${SIDES[d.side] || d.side}</span><span>${DEAL_ST[d.status] || d.status}</span><span>${fmtDate(d.closing_date)}</span><span>${money(d.price)}</span>
+        <span><span class="pill">Coming</span></span><span><span class="pill">Coming</span></span></div>`).join("") + `</div>`
+    : `<p class="empty">No deals yet. When you move a lead to Under contract, it shows up here.</p>`}
+    <p class="note">Coming: paperwork status from the nightly compliance check (zipForm / dotloop WAFFL folder), and CDA status and payout from the CDA desk.</p>`;
+}
+
+// ---------------- My Closed Properties ----------------
+async function showClosed() {
+  await chrome("My Closed Properties", "closed");
+  const { data: deals } = await sb.from("deals").select("*").eq("agent_id", ME.id).eq("status","closed").order("closed_at", { ascending:false }).limit(500);
+  app.innerHTML = (deals || []).length ? `<div class="tbl"><div class="tr th d5"><span>Property</span><span>Side</span><span>Closed</span><span>Closing date</span><span>Price</span></div>` +
+    deals.map(d => `<div class="tr d5"><span class="nm">${esc(d.address)}</span><span>${SIDES[d.side] || d.side}</span><span>${d.closed_at ? fmtDay(d.closed_at) : "—"}</span><span>${fmtDate(d.closing_date)}</span><span>${money(d.price)}</span></div>`).join("") + `</div>`
+    : `<p class="empty">No closed deals in the CRM yet. Deals you close here show up on this page. Older closings from Bright come later.</p>`;
+}
+
+// ---------------- My Marketing (Listings & Farming): 12 tiles, six live, six coming soon ----------------
+const MKT = [
+  ["Listings", "m_listing", "Listing Marketing", "Branded listing PDF (Client 360) and a social post for a listing.", "https://tools.ribbonway.com/home"],
+  ["Listings", "m_social", "Social", "Post a listing, a just sold or an update through the Ribbon Post Desk.", "https://tools.ribbonway.com/home"],
+  ["Listings", "m_alerts", "Search Alerts", "New listings emailed to your buyers from blueribbon.homes.", "https://blueribbon.homes"],
+  ["Farming", "m_plans", "Follow-up Plans", "Drip emails and tasks that run on their own.", "#/crm/noplan"],
+  ["Farming", "m_cma", "Market Reports & CMA", "Home values and market updates for your sphere.", "https://tools.ribbonway.com/home"],
+  ["Farming", "m_mass", "Mass Email", "Write once, send to a group of your contacts. Tracy approves the wording first.", ""],
+  ["soon", "m_lm", "ListingMachine", "Automatic listing marketing.", ""], ["soon", "m_design", "DesignCenter", "Flyers and templates.", ""],
+  ["soon", "m_vm", "Voicemail Drop", "", ""], ["soon", "m_bday", "Birthdays & Anniversaries", "", ""],
+  ["soon", "m_hash", "Hashtag Management", "", ""], ["soon", "m_behav", "Behavioral Automation", "", ""] ];
+async function showMarketing() {
+  await chrome("My Marketing (Listings & Farming)", "marketing");
+  const tile = ([grp, k, h, p, url]) => { const u = SET.links[k] || url, live = grp !== "soon" && u;
+    return `<div class="mtile ${live ? "" : "soon"}"><h3>${esc(h)}</h3>${p ? `<p>${esc(p)}</p>` : ""}${live
+      ? `<a class="btn small" href="${esc(u)}" ${u.startsWith("http") ? 'target="_blank" rel="noopener"' : ""}>Open</a>` : `<span class="btn small">Coming soon</span>`}</div>`; };
+  const grp = g => MKT.filter(t => t[0] === g).map(tile).join("");
+  app.innerHTML = `<div class="sechead">Listings</div><div class="mtiles">${grp("Listings")}</div>
+    <div class="sechead">Farming</div><div class="mtiles">${grp("Farming")}</div>
+    <div class="sechead">Coming soon</div><div class="mtiles">${grp("soon")}</div>`;
+}
+
+// ---------------- Brokerage > Desk settings: broker message + where each menu item / tile points ----------------
+async function showDeskSettings() {
+  await chrome("Desk settings", "a-desk");
+  const slots = [...ME_MENU.filter(m => m[0] !== "today").map(m => [m[0], m[2], m[1]]), ["cda", "Start a CDA button", "https://cda.ribbonway.com"],
+                 ...MKT.map(t => [t[1], "Marketing tile: " + t[2], t[4]])];
+  app.innerHTML = `<div class="narrow">
+    <label for="bm">Message at the top of every agent's Today page</label><textarea id="bm">${esc(SET.broker_message)}</textarea>
+    <h2>Where each item opens</h2>
+    <p class="note">Leave a box blank to use our own page. Paste a link (for example a Sierra, GoHighLevel or marketing site page) to send agents there instead.</p>
+    ${slots.map(([k, label, def]) => `<label for="l_${k}">${esc(label)}</label><input type="text" id="l_${k}" value="${esc(SET.links[k] || "")}" placeholder="${esc(def ? "Default: " + def : "Blank = coming soon")}">`).join("")}
+    <p><button class="btn" id="dsave">Save</button></p><p id="dmsg" class="msg"></p></div>`;
+  $("dsave").onclick = async () => {
+    const links = {}; slots.forEach(([k]) => { const v = $("l_" + k).value.trim(); if (v) links[k] = v; });
+    const r = await sb.from("app_settings").upsert([{ key:"broker_message", value:$("bm").value.trim() }, { key:"desk_links", value:JSON.stringify(links) }]);
+    const m = $("dmsg"); m.className = "msg " + (r.error ? "bad" : "good"); m.textContent = r.error ? r.error.message : "Saved";
+    if (!r.error) { SET.broker_message = $("bm").value.trim(); SET.links = links; }
   };
 }
 
@@ -391,7 +588,7 @@ async function showBroker() {
 }
 
 async function showFlow() {
-  await chrome("Where new leads go", "a-flow");
+  await chrome("Lead routing", "a-flow");
   const [{ data: rules }, { data: plans }, { data: agents }] = await Promise.all([
     sb.from("lead_flow_rules").select("*").order("priority"), sb.from("action_plans").select("id, name").eq("active", true),
     sb.from("agents").select("id, full_name").eq("active", true).order("full_name") ]);
@@ -636,20 +833,27 @@ async function route() {
   if (h.startsWith("#/crm")) { const [, , list, term] = h.split("/"); return showCrm(list || "all", term ? decodeURIComponent(term) : ""); }
   if (h === "#/tasks") return showTasks();
   if (h === "#/pond") return showPond();
-  if (h.startsWith("#/admin/agents/")) return (ME.boss || ME.staff) ? showAgentEdit(decodeURIComponent(h.slice(15))) : showPriorities();
-  if (h.startsWith("#/admin/agents")) return (ME.boss || ME.staff) ? showAgents() : showPriorities();
+  if (h === "#/desk") return showDesk();
+  if (h === "#/closed") return showClosed();
+  if (h === "#/marketing") return showMarketing();
+  if (h.startsWith("#/admin/agents/")) return (ME.boss || ME.staff) ? showAgentEdit(decodeURIComponent(h.slice(15))) : showToday();
+  if (h.startsWith("#/admin/agents")) return (ME.boss || ME.staff) ? showAgents() : showToday();
   if (ME.staff) return showAgents();
   if (h.startsWith("#/admin")) {
-    if (!ME.boss) return showPriorities();
-    return ({ "#/admin":showBroker, "#/admin/flow":showFlow, "#/admin/plans":showPlans, "#/admin/emails":showEmails, "#/admin/agents":showAgents }[h] || showBroker)();
+    if (!ME.boss) return showToday();
+    if (h === "#/admin/ponds") return showPond("pond-b");
+    return ({ "#/admin":showBroker, "#/admin/flow":showFlow, "#/admin/plans":showPlans, "#/admin/emails":showEmails, "#/admin/agents":showAgents, "#/admin/desk":showDeskSettings }[h] || showBroker)();
   }
-  return showPriorities();
+  return showToday();
 }
 
 async function start(user) {
   const { data: me } = await sb.from("agents").select("id, full_name, role, office_id").eq("auth_user_id", user.id).maybeSingle();
   if (!me) { side.style.display = "none"; tilesEl.innerHTML = ""; app.innerHTML = `<p>You're signed in, but your email isn't on the agent roster yet. Email Tracy.</p>`; return; }
   ME = { ...me, boss: me.role === "broker" || me.role === "admin", staff: me.role === "staff" };
+  const { data: st } = await sb.from("app_settings").select("key, value").in("key", ["broker_message","desk_links"]);
+  for (const r of st || []) { if (r.key === "broker_message") SET.broker_message = r.value;
+    if (r.key === "desk_links") { try { SET.links = JSON.parse(r.value) || {}; } catch { SET.links = {}; } } }
   if (ME.staff) $("search").style.display = "none";
   [PONDS, OFFICES] = await Promise.all([ sb.from("ponds").select("id, name").order("name").then(r => r.data || []),
                                          sb.from("offices").select("id, name").order("name").then(r => r.data || []) ]);
