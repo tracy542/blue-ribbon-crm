@@ -191,10 +191,10 @@ async function chrome(title, active) {
     link("#/pond", "Office pond", "pond", n.pond) +
     `<a href="https://tools.ribbonway.com/home" target="_blank" rel="noopener">Tools<span class="count">↗</span></a>` +
     `<a href="https://cda.ribbonway.com" target="_blank" rel="noopener">CDA<span class="count">↗</span></a>` +
-    (ME.boss ? `<div class="navgroup">Broker</div>` +
+    (ME.boss ? `<div class="navgroup">Admin</div>` +
+      link("#/admin/agents", "Agent roster", "a-agents") +
       link("#/admin", "Who needs a nudge", "a-nudge") + link("#/admin/flow", "Where leads go", "a-flow") +
-      link("#/admin/plans", "Follow-up plans", "a-plans") + link("#/admin/emails", "Held emails", "a-emails") +
-      link("#/admin/agents", "Agents", "a-agents") : "");
+      link("#/admin/plans", "Follow-up plans", "a-plans") + link("#/admin/emails", "Held emails", "a-emails") : "");
   $("foot").innerHTML = `${esc(ME.full_name)}<br><a href="#" id="signout">Sign out</a>`;
   $("signout").onclick = async e => { e.preventDefault(); await sb.auth.signOut(); location.hash = ""; location.reload(); };
   $("who").textContent = etNow().toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
@@ -443,7 +443,7 @@ async function showEmails() {
 }
 
 async function showAgents() {
-  await chrome("Agents", "a-agents");
+  await chrome("Agent roster", "a-agents");
   const { data: agents } = await sb.from("agents").select("id, full_name, email, agent_number, role, active, office_id, auth_user_id").order("full_name");
   const off = id => OFFICES.find(o => o.id === id)?.name || "";
   app.innerHTML = `<div class="cols"><div class="box">${(agents||[]).map(a => `<div class="row" style="display:block">
