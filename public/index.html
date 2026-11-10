@@ -4,175 +4,296 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>My Desk</title>
+<title>Blue Ribbon CRM</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --navy:#1F3A68; --ink:#1A1D23; --muted:#5B616B; --line:#E1E4E9; --bg:#F6F7F9; --hot:#8A3B00; --hotbg:#FFE9D6; --late:#A3290F; --ok:#1E6B3A; }
+  :root { --navy:#1F3A68; --navy2:#142847; --ink:#1A1D23; --muted:#5B616B; --line:#E1E4E9; --bg:#F4F5F7; --hot:#8A3B00; --hotbg:#FFE9D6; --late:#A3290F; --latebg:#FDE8E4; --ok:#1E6B3A; --side:#14213A; }
   * { box-sizing:border-box }
   body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.45 Inter, system-ui, sans-serif; text-align:left }
-  header { background:var(--navy); color:#fff; padding:18px 16px }
-  header.admin { background:#1A1D23 }
-  header .sub { font-size:15px; opacity:.85 }
-  header h1 { margin:4px 0 0; font-size:27px }
-  header a { color:#fff }
-  main { max-width:720px; padding:12px 16px 48px }
-  h2 { font-size:20px; margin:22px 0 10px }
   a { color:var(--navy) }
-  .tabs { display:flex; gap:8px; overflow-x:auto; padding:12px 16px 4px; max-width:720px }
-  .tab { flex:none; padding:10px 14px; border-radius:22px; background:#fff; border:1px solid #C9CED6; color:var(--ink); font-size:16px; text-decoration:none; min-height:44px; display:inline-flex; align-items:center }
-  .tab.on { border:2px solid var(--navy); color:var(--navy); font-weight:600 }
-  .card { display:block; background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:10px; color:inherit; text-decoration:none }
-  .name { font-size:20px; font-weight:700; display:flex; justify-content:space-between; gap:8px; align-items:center }
-  .tag { font-size:14px; font-weight:700; color:var(--hot); background:var(--hotbg); padding:4px 10px; border-radius:12px; white-space:nowrap }
-  .tag.pond { color:var(--navy); background:#E3EAF5 }
-  .why { color:#3A3F48; margin-top:4px } .meta { color:var(--muted); font-size:15px; margin-top:4px }
+
+  /* ---------- App shell: left menu + top bar + main panel ---------- */
+  .shell { display:flex; min-height:100vh }
+  .side { width:250px; flex:none; background:var(--side); color:#fff; display:flex; flex-direction:column; padding:18px 0 }
+  .brand { padding:0 20px 18px; font-size:20px; font-weight:700; border-bottom:1px solid rgba(255,255,255,.12); margin-bottom:10px }
+  .brand small { display:block; font-size:14px; font-weight:400; opacity:.75 }
+  .navgroup { padding:10px 20px 4px; font-size:13px; letter-spacing:.06em; text-transform:uppercase; opacity:.6 }
+  .nav a { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 20px; min-height:48px; color:#fff; text-decoration:none; font-size:17px; border-left:4px solid transparent }
+  .nav a:hover { background:rgba(255,255,255,.07) }
+  .nav a.on { background:rgba(255,255,255,.12); border-left-color:#7FA8E8; font-weight:600 }
+  .nav .count { font-size:14px; background:rgba(255,255,255,.18); border-radius:10px; padding:1px 9px }
+  .side .foot { margin-top:auto; padding:16px 20px 0; font-size:15px; opacity:.8 }
+  .side .foot a { color:#fff }
+  .mainwrap { flex:1; min-width:0; display:flex; flex-direction:column }
+  .topbar { display:flex; align-items:center; gap:14px; background:#fff; border-bottom:1px solid var(--line); padding:12px 24px; flex-wrap:wrap }
+  .topbar h1 { margin:0; font-size:24px; flex:1; min-width:160px }
+  .topbar .search { flex:0 1 320px; min-width:180px }
+  .menubtn { display:none; min-height:44px; padding:0 14px; border:1px solid #C9CED6; background:#fff; border-radius:10px; font:600 16px Inter, system-ui, sans-serif; cursor:pointer }
+  .who { color:var(--muted); font-size:15px; white-space:nowrap }
+  .tiles { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:14px; padding:18px 24px 0 }
+  .tile { display:block; background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px; color:inherit; text-decoration:none; border-top:5px solid var(--navy) }
+  .tile b { display:block; font-size:32px; line-height:1.1 }
+  .tile span { color:var(--muted); font-size:15px }
+  .tile.hot { border-top-color:#C25B12 } .tile.late { border-top-color:var(--late) } .tile.need { border-top-color:#2E6FD8 }
+  .tile.on { outline:2px solid var(--navy) }
+  main { padding:18px 24px 48px; max-width:1200px }
+
+  /* ---------- Content pieces ---------- */
+  h2 { font-size:20px; margin:22px 0 10px }
+  h2:first-child { margin-top:4px }
+  .cols { display:grid; grid-template-columns:minmax(0,3fr) minmax(0,2fr); gap:20px; align-items:start }
+  .panel { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px }
+  .panel > h2 { margin-top:0 }
+  .card { display:block; background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; color:inherit; text-decoration:none }
+  .panel .card { border-color:#ECEEF2 }
+  .name { font-size:19px; font-weight:700; display:flex; justify-content:space-between; gap:8px; align-items:center }
+  .tag { font-size:13px; font-weight:700; color:var(--hot); background:var(--hotbg); padding:3px 9px; border-radius:12px; white-space:nowrap }
+  .tag.pond { color:var(--navy); background:#E3EAF5 } .tag.need { color:#1D4FA0; background:#E1ECFC }
+  .why { color:#3A3F48; margin-top:3px } .meta { color:var(--muted); font-size:15px; margin-top:3px }
   .hotbar { color:var(--hot); background:var(--hotbg); padding:10px 12px; border-radius:10px; margin-top:8px }
-  .row { display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid #EEF0F3 }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 14px }
+  .chip { padding:9px 14px; border-radius:22px; background:#fff; border:1px solid #C9CED6; color:var(--ink); font-size:16px; text-decoration:none; min-height:44px; display:inline-flex; align-items:center }
+  .chip.on { border:2px solid var(--navy); color:var(--navy); font-weight:600 }
+  /* lead table: columns on a computer, stacked on a phone */
+  .tbl { background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden }
+  .tr { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,.8fr) minmax(0,2.2fr) minmax(0,1fr) minmax(0,1fr); gap:12px; padding:13px 16px; border-bottom:1px solid #EEF0F3; color:inherit; text-decoration:none; align-items:center }
+  .tr:last-child { border-bottom:0 }
+  a.tr:hover { background:#F7F9FC }
+  .th { font-size:14px; font-weight:700; color:var(--muted); background:#FAFBFC; text-transform:uppercase; letter-spacing:.04em }
+  .tr .nm { font-weight:700 }
+  .row { display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid #EEF0F3 }
   .row:last-child { border-bottom:0 }
   .box { background:#fff; border:1px solid var(--line); border-radius:12px }
   .row input[type=checkbox] { width:24px; height:24px; flex:none }
   .late { color:var(--late) }
-  .btn { display:inline-flex; align-items:center; justify-content:center; min-height:52px; padding:0 18px; border-radius:12px; border:0; background:var(--navy); color:#fff; font:600 17px Inter, system-ui, sans-serif; cursor:pointer; text-decoration:none }
+  .btn { display:inline-flex; align-items:center; justify-content:center; min-height:50px; padding:0 18px; border-radius:12px; border:0; background:var(--navy); color:#fff; font:600 17px Inter, system-ui, sans-serif; cursor:pointer; text-decoration:none }
   .btn.ghost { background:#fff; color:var(--navy); border:2px solid var(--navy) }
   .btn.small { min-height:44px; font-size:16px; padding:0 14px }
-  .btns { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin:14px 0 }
+  .btns { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin:14px 0; max-width:520px }
   label { display:block; font-weight:600; margin:12px 0 4px }
-  input[type=text], input[type=email], input[type=date], input[type=number], select, textarea { width:100%; min-height:48px; font:17px Inter, system-ui, sans-serif; padding:10px 12px; border:1px solid #C9CED6; border-radius:10px; background:#fff }
+  input[type=text], input[type=email], input[type=date], input[type=number], input[type=search], select, textarea { width:100%; min-height:46px; font:17px Inter, system-ui, sans-serif; padding:10px 12px; border:1px solid #C9CED6; border-radius:10px; background:#fff }
   textarea { min-height:110px }
   .empty { color:var(--muted) }
   .stat { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px }
   .stat b { display:block; font-size:30px }
-  .grid2 { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px }
+  .grid2 { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px }
   .msg { margin-top:10px; font-weight:600 } .msg.bad { color:var(--late) } .msg.good { color:var(--ok) }
   .note { color:var(--muted); font-size:15px }
-  pre.mail { white-space:pre-wrap; font:16px/1.5 Inter, system-ui, sans-serif; background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; margin:6px 0 0 }
+  pre.mail { white-space:pre-wrap; font:16px/1.5 Inter, system-ui, sans-serif; background:#FAFBFC; border:1px solid var(--line); border-radius:12px; padding:14px; margin:6px 0 0 }
   .back { display:inline-block; font-size:16px; margin-bottom:6px }
+  .narrow { max-width:720px }
+
+  /* ---------- Phone: menu slides in, tiles 2x2, table stacks ---------- */
+  @media (max-width: 860px) {
+    .side { position:fixed; inset:0 auto 0 0; z-index:20; transform:translateX(-100%); transition:transform .2s; box-shadow:4px 0 20px rgba(0,0,0,.25) }
+    .side.open { transform:none }
+    .menubtn { display:inline-flex; align-items:center }
+    .topbar { padding:10px 16px } .topbar h1 { font-size:22px } .topbar .search { flex:1 1 100% }
+    .who { display:none }
+    .tiles { grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; padding:14px 16px 0 }
+    .tile b { font-size:28px }
+    main { padding:14px 16px 48px }
+    .cols { grid-template-columns:1fr }
+    .tr { grid-template-columns:1fr; gap:2px } .th { display:none }
+    .tr .c-stage, .tr .c-src { display:none }
+  }
 </style>
 </head>
 <body>
-<header id="hdr"><div class="sub" id="today"></div><h1 id="title">My Desk</h1></header>
-<nav class="tabs" id="tabs" aria-label="Lists"></nav>
-<main id="app"></main>
+<div class="shell">
+  <aside class="side" id="side" aria-label="Menu">
+    <div class="brand">Blue Ribbon<small>CRM</small></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="foot" id="foot"></div>
+  </aside>
+  <div class="mainwrap">
+    <div class="topbar">
+      <button class="menubtn" id="menubtn" aria-label="Open menu">☰ Menu</button>
+      <h1 id="title">Blue Ribbon CRM</h1>
+      <input type="search" class="search" id="search" placeholder="Search name or email" aria-label="Search leads">
+      <span class="who" id="who"></span>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <main id="app"></main>
+  </div>
+</div>
 
 <script type="module">
 // ============================================================
-// My Desk — agents' daily screen + Tracy/Gavin admin pages.
+// Blue Ribbon CRM — app layout: left menu, top numbers, big main panel.
 // Every read goes through the database's who-sees-what rules.
 // ============================================================
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm";
 
 const cfg = await fetch("/api/config").then(r => r.json());
-if (!cfg.ok) { document.getElementById("app").textContent = "My Desk isn't connected yet. Email Tracy."; throw new Error(cfg.error); }
+if (!cfg.ok) { document.getElementById("app").textContent = "The CRM isn't connected yet. Email Tracy."; throw new Error(cfg.error); }
 const sb = createClient(cfg.url, cfg.anonKey);
 
-const app = document.getElementById("app"), tabsEl = document.getElementById("tabs");
+const $ = id => document.getElementById(id);
+const app = $("app"), tilesEl = $("tiles"), navEl = $("nav"), side = $("side");
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const TZ = "America/New_York";
 const fmtDay = d => new Date(d).toLocaleDateString("en-US", { weekday:"short", month:"short", day:"numeric", timeZone:TZ });
 const fmtWhen = d => new Date(d).toLocaleString("en-US", { weekday:"short", month:"short", day:"numeric", hour:"numeric", minute:"2-digit", timeZone:TZ });
-const ago = d => { const m = Math.round((Date.now() - new Date(d)) / 60000);
+const ago = d => { if (!d) return "never"; const m = Math.round((Date.now() - new Date(d)) / 60000);
   return m < 60 ? m + " min ago" : m < 1440 ? Math.round(m/60) + " hr ago" : Math.round(m/1440) + " days ago"; };
 const fullName = c => (`${c.first_name || ""} ${c.last_name || ""}`).trim() || c.email || "No name";
-const endOfToday = () => { const d = new Date(new Date().toLocaleString("en-US", { timeZone:TZ })); d.setHours(23,59,59,999);
-  return new Date(Date.now() + (d - new Date(new Date().toLocaleString("en-US", { timeZone:TZ })))); };
-const startOfToday = () => new Date(endOfToday().getTime() - 86400000 + 1);
+const STAGES = { new_lead:"New lead", active:"Active", client:"Client", under_contract:"Under contract", closed:"Closed", sphere:"Sphere", dead:"Not interested" };
+// End and start of today in Eastern time, as real moments
+const etNow = () => new Date(new Date().toLocaleString("en-US", { timeZone:TZ }));
+const endOfToday = () => { const e = etNow(); const d = new Date(e); d.setHours(23,59,59,999); return new Date(Date.now() + (d - e)); };
+const startOfToday = () => { const e = etNow(); const d = new Date(e); d.setHours(0,0,0,0); return new Date(Date.now() + (d - e)); };
+const d30 = () => new Date(Date.now() - 30*86400000).toISOString();
+const d7 = () => new Date(Date.now() - 7*86400000).toISOString();
 
-document.getElementById("today").textContent = new Date().toLocaleDateString("en-US", { weekday:"long", month:"short", day:"numeric", timeZone:TZ });
 let ME = null, PONDS = [], OFFICES = [];
 
-function header(title, admin = false) {
-  document.getElementById("title").textContent = title;
-  document.getElementById("hdr").className = admin ? "admin" : "";
-}
+$("menubtn").onclick = () => side.classList.toggle("open");
+$("search").addEventListener("keydown", e => { if (e.key === "Enter") location.hash = "#/crm/all/" + encodeURIComponent(e.target.value.trim()); });
 
 // ---------------- Sign in ----------------
 function showLogin() {
-  header("My Desk"); tabsEl.innerHTML = "";
-  app.innerHTML = `<h2>Sign in</h2><p>Type your Blue Ribbon email. We'll email you a link that signs you in. No password.</p>
+  side.style.display = "none"; $("menubtn").style.display = "none"; $("search").style.display = "none"; tilesEl.innerHTML = "";
+  $("title").textContent = "Blue Ribbon CRM";
+  app.innerHTML = `<div class="narrow"><h2>Sign in</h2><p>Type your Blue Ribbon email. We'll email you a link that signs you in. No password.</p>
     <label for="em">Email</label><input type="email" id="em" autocomplete="email">
-    <p><button class="btn" id="go">Email me a link</button></p><p id="msg" class="msg"></p>`;
-  document.getElementById("go").onclick = async () => {
-    const email = document.getElementById("em").value.trim();
+    <p><button class="btn" id="go">Email me a link</button></p><p id="msg" class="msg"></p></div>`;
+  $("go").onclick = async () => {
+    const email = $("em").value.trim();
     const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin } });
-    document.getElementById("msg").textContent = error ? "Couldn't send the link. Wait a minute and try again, or email Tracy." : "Check your email for the link.";
+    $("msg").textContent = error ? "Couldn't send the link. Wait a minute and try again, or email Tracy." : "Check your email for the link.";
   };
 }
 
-// ---------------- My Desk lists (FUB-style smart lists) ----------------
-const LISTS = {
-  hot:   { label:"Hot",                  title:"Call these first" },
-  today: { label:"Due today",            title:"Due today" },
-  new:   { label:"New (7 days)",         title:"New leads, last 7 days" },
-  quiet: { label:"No contact 30 days",   title:"No contact in 30 days" },
-  pond:  { label:"Office pond",          title:"Office leads waiting for an agent" },
-};
-
+// ---------------- Left menu + top numbers ----------------
 async function counts() {
-  const now = new Date(), d7 = new Date(now - 7*86400000).toISOString(), d30 = new Date(now - 30*86400000).toISOString();
-  const mine = q => ME.role === "agent" || !ME.boss_view ? q.eq("owner_agent_id", ME.id) : q.not("owner_agent_id", "is", null);
-  const [hot, nw, quiet, pond, today] = await Promise.all([
-    mine(sb.from("contacts").select("id", { count:"exact", head:true }).eq("is_hot", true)),
-    mine(sb.from("contacts").select("id", { count:"exact", head:true }).gte("created_at", d7)),
-    mine(sb.from("contacts").select("id", { count:"exact", head:true }).not("stage","in","(closed,dead)").or(`last_contacted_at.is.null,last_contacted_at.lt.${d30}`).lt("created_at", d30)),
+  const mine = () => sb.from("contacts").select("id", { count:"exact", head:true }).eq("owner_agent_id", ME.id);
+  const [need, hot, today, late, pond, crm] = await Promise.all([
+    mine().is("first_contacted_at", null).not("stage","in","(closed,dead)"),
+    mine().eq("is_hot", true),
+    sb.from("tasks").select("id", { count:"exact", head:true }).eq("agent_id", ME.id).eq("status","open").gte("due_at", startOfToday().toISOString()).lte("due_at", endOfToday().toISOString()),
+    sb.from("tasks").select("id", { count:"exact", head:true }).eq("agent_id", ME.id).eq("status","open").lt("due_at", startOfToday().toISOString()),
     sb.from("contacts").select("id", { count:"exact", head:true }).not("pond_id","is",null),
-    sb.from("tasks").select("id", { count:"exact", head:true }).eq("status","open").eq("agent_id", ME.id).lte("due_at", endOfToday().toISOString()),
+    mine(),
   ]);
-  return { hot:hot.count||0, new:nw.count||0, quiet:quiet.count||0, pond:pond.count||0, today:today.count||0 };
+  return { need:need.count||0, hot:hot.count||0, today:today.count||0, late:late.count||0, pond:pond.count||0, crm:crm.count||0 };
 }
 
-async function showDesk(list = "hot") {
-  header("Good morning, " + ME.full_name.split(" ")[0]);
+async function chrome(title, active) {
+  $("title").textContent = title;
+  side.classList.remove("open");
   const n = await counts();
-  tabsEl.innerHTML = Object.entries(LISTS).map(([k, v]) =>
-    `<a class="tab ${k === list ? "on" : ""}" href="#/list/${k}">${v.label} (${n[k]})</a>`).join("") +
-    (ME.boss ? `<a class="tab" href="#/admin">Admin</a>` : "");
-  app.innerHTML = `<h2>${LISTS[list].title}</h2><div id="list"><p class="empty">Loading…</p></div>`;
-  const box = document.getElementById("list");
+  const link = (h, label, key, count) => `<a href="${h}" class="${active === key ? "on" : ""}">${label}${count != null ? `<span class="count">${count}</span>` : ""}</a>`;
+  navEl.innerHTML =
+    link("#/crm", "My CRM", "crm", n.crm) +
+    link("#/", "My Priorities", "prio", n.hot + n.today + n.late) +
+    link("#/tasks", "Tasks", "tasks", n.today + n.late) +
+    link("#/pond", "Office pond", "pond", n.pond) +
+    `<a href="https://tools.ribbonway.com/home" target="_blank" rel="noopener">Tools<span class="count">↗</span></a>` +
+    (ME.boss ? `<div class="navgroup">Broker</div>` +
+      link("#/admin", "Who needs a nudge", "a-nudge") + link("#/admin/flow", "Where leads go", "a-flow") +
+      link("#/admin/plans", "Follow-up plans", "a-plans") + link("#/admin/emails", "Held emails", "a-emails") +
+      link("#/admin/agents", "Agents", "a-agents") : "");
+  $("foot").innerHTML = `${esc(ME.full_name)}<br><a href="#" id="signout">Sign out</a>`;
+  $("signout").onclick = async e => { e.preventDefault(); await sb.auth.signOut(); location.hash = ""; location.reload(); };
+  $("who").textContent = etNow().toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
+  const tile = (h, cls, num, label, key) => `<a class="tile ${cls} ${active === key ? "on" : ""}" href="${h}"><b>${num}</b><span>${label}</span></a>`;
+  tilesEl.innerHTML =
+    tile("#/crm/need", "need", n.need, "Needs contacted", "crm-need") +
+    tile("#/crm/hot", "hot", n.hot, "Hot leads", "crm-hot") +
+    tile("#/tasks", "", n.today, "Due today", "tasks") +
+    tile("#/tasks", "late", n.late, "Overdue", "tasks-late");
+}
 
-  if (list === "today") {
-    const { data: tasks } = await sb.from("tasks").select("id, title, due_at, contact_id").eq("status","open")
-      .eq("agent_id", ME.id).lte("due_at", endOfToday().toISOString()).order("due_at");
-    if (!tasks?.length) { box.innerHTML = `<p class="empty">Nothing due today.</p>`; return; }
-    const sod = startOfToday();
-    box.innerHTML = `<div class="box">` + tasks.map(t => {
-      const late = new Date(t.due_at) < sod;
-      return `<div class="row"><input type="checkbox" id="t${t.id}" data-id="${t.id}">
-        <label for="t${t.id}" style="margin:0;font-weight:400" class="${late ? "late" : ""}">${late ? "Overdue: " : ""}${esc(t.title)}</label>
-        ${t.contact_id ? `<a href="#/p/${t.contact_id}" style="margin-left:auto;white-space:nowrap">Open</a>` : ""}</div>`;
-    }).join("") + `</div>`;
-    box.querySelectorAll("input[type=checkbox]").forEach(cb => cb.onchange = async () => {
-      await sb.from("tasks").update({ status: cb.checked ? "done" : "open" }).eq("id", cb.dataset.id);
-    });
-    return;
-  }
+const leadCard = c => `
+  <a class="card" href="#/p/${c.id}">
+    <div class="name"><span>${esc(fullName(c))}</span>${c.is_hot ? `<span class="tag">HOT</span>` : c.pond_id ? `<span class="tag pond">POND</span>` : !c.first_contacted_at ? `<span class="tag need">NEW</span>` : ""}</div>
+    ${c.hot_reason ? `<div class="why">${esc(c.hot_reason)}</div>` : ""}
+    <div class="meta">${esc(c.source || "Lead")} · came in ${ago(c.created_at)}</div>
+  </a>`;
 
-  let q = sb.from("contacts").select("id, first_name, last_name, email, hot_reason, source, created_at, pond_id, last_contacted_at, stage, is_hot");
-  if (list === "pond") q = q.not("pond_id","is",null).order("created_at", { ascending:false });
+// ---------------- My Priorities (home) ----------------
+async function showPriorities() {
+  await chrome("My Priorities", "prio");
+  app.innerHTML = `<div class="cols">
+      <div class="panel"><h2>Call these first</h2><div id="hot"><p class="empty">Loading…</p></div></div>
+      <div class="panel"><h2>Due today</h2><div id="today"><p class="empty">Loading…</p></div></div>
+    </div>
+    <div class="panel" style="margin-top:20px"><h2>Needs contacted</h2><div id="need"><p class="empty">Loading…</p></div></div>`;
+  const [{ data: hot }, { data: need }] = await Promise.all([
+    sb.from("contacts").select("*").eq("owner_agent_id", ME.id).eq("is_hot", true).order("hot_at", { ascending:false }).limit(10),
+    sb.from("contacts").select("*").eq("owner_agent_id", ME.id).is("first_contacted_at", null).not("stage","in","(closed,dead)").order("created_at", { ascending:false }).limit(10),
+  ]);
+  $("hot").innerHTML = hot?.length ? hot.map(leadCard).join("") : `<p class="empty">No hot leads right now.</p>`;
+  $("need").innerHTML = need?.length ? need.map(leadCard).join("") : `<p class="empty">Everyone on your list has been contacted.</p>`;
+  await taskList($("today"), true);
+}
+
+// ---------------- Tasks ----------------
+async function taskList(box, todayOnly) {
+  let q = sb.from("tasks").select("id, title, due_at, contact_id").eq("status","open").eq("agent_id", ME.id).order("due_at");
+  if (todayOnly) q = q.lte("due_at", endOfToday().toISOString());
+  const { data: tasks } = await q.limit(100);
+  if (!tasks?.length) { box.innerHTML = `<p class="empty">${todayOnly ? "Nothing due today." : "No open tasks."}</p>`; return; }
+  const sod = startOfToday();
+  box.innerHTML = `<div class="box">` + tasks.map(t => {
+    const late = new Date(t.due_at) < sod;
+    return `<div class="row"><input type="checkbox" id="t${t.id}" data-id="${t.id}">
+      <label for="t${t.id}" style="margin:0;font-weight:400;flex:1" class="${late ? "late" : ""}">${late ? "Overdue: " : ""}${esc(t.title)}${todayOnly ? "" : ` <span class="meta">· ${fmtDay(t.due_at)}</span>`}</label>
+      ${t.contact_id ? `<a href="#/p/${t.contact_id}" style="white-space:nowrap">Open</a>` : ""}</div>`;
+  }).join("") + `</div>`;
+  box.querySelectorAll("input[type=checkbox]").forEach(cb => cb.onchange = async () => {
+    await sb.from("tasks").update({ status: cb.checked ? "done" : "open" }).eq("id", cb.dataset.id);
+  });
+}
+async function showTasks() {
+  await chrome("Tasks", "tasks");
+  app.innerHTML = `<div class="narrow"><div id="tl"><p class="empty">Loading…</p></div></div>`;
+  await taskList($("tl"), false);
+}
+
+// ---------------- My CRM (lead table with smart lists) ----------------
+const LISTS = { all:"All my leads", need:"Needs contacted", hot:"Hot", new:"New (7 days)", quiet:"No contact 30 days" };
+async function showCrm(list = "all", term = "") {
+  await chrome("My CRM", list === "need" ? "crm-need" : list === "hot" ? "crm-hot" : "crm");
+  if (term) $("search").value = term;
+  app.innerHTML = `<div class="chips">${Object.entries(LISTS).map(([k, v]) => `<a class="chip ${k === list && !term ? "on" : ""}" href="#/crm/${k}">${v}</a>`).join("")}</div>
+    ${term ? `<p class="note">Search: "${esc(term)}" · <a href="#/crm">clear</a></p>` : ""}
+    <div id="tbl"><p class="empty">Loading…</p></div>`;
+  let q = sb.from("contacts").select("id, first_name, last_name, email, stage, source, is_hot, hot_reason, created_at, last_contacted_at, first_contacted_at, pond_id");
+  if (term) q = q.or(`first_name.ilike.%${term}%,last_name.ilike.%${term}%,email.ilike.%${term}%`).order("created_at", { ascending:false });
   else {
-    q = ME.role === "agent" || !ME.boss_view ? q.eq("owner_agent_id", ME.id) : q.not("owner_agent_id","is",null);
-    if (list === "hot") q = q.eq("is_hot", true).order("hot_at", { ascending:false });
-    if (list === "new") q = q.gte("created_at", new Date(Date.now() - 7*86400000).toISOString()).order("created_at", { ascending:false });
-    if (list === "quiet") { const d30 = new Date(Date.now() - 30*86400000).toISOString();
-      q = q.not("stage","in","(closed,dead)").or(`last_contacted_at.is.null,last_contacted_at.lt.${d30}`).lt("created_at", d30).order("last_contacted_at", { ascending:true, nullsFirst:true }); }
+    q = q.eq("owner_agent_id", ME.id);
+    if (list === "need") q = q.is("first_contacted_at", null).not("stage","in","(closed,dead)").order("created_at", { ascending:false });
+    else if (list === "hot") q = q.eq("is_hot", true).order("hot_at", { ascending:false });
+    else if (list === "new") q = q.gte("created_at", d7()).order("created_at", { ascending:false });
+    else if (list === "quiet") q = q.not("stage","in","(closed,dead)").or(`last_contacted_at.is.null,last_contacted_at.lt.${d30()}`).lt("created_at", d30()).order("last_contacted_at", { ascending:true, nullsFirst:true });
+    else q = q.order("created_at", { ascending:false });
   }
-  const { data: rows } = await q.limit(50);
-  if (!rows?.length) {
-    box.innerHTML = `<p class="empty">${{ hot:"No hot leads right now.", new:"No new leads this week.", quiet:"Nobody has gone quiet. Nice work.", pond:"The office pond is empty." }[list]}</p>`; return;
-  }
-  box.innerHTML = rows.map(c => `
-    <a class="card" href="#/p/${c.id}">
-      <div class="name"><span>${esc(fullName(c))}</span>${c.is_hot ? `<span class="tag">HOT</span>` : c.pond_id ? `<span class="tag pond">POND</span>` : ""}</div>
-      ${c.hot_reason ? `<div class="why">${esc(c.hot_reason)}</div>` : ""}
-      <div class="meta">${esc(c.source || "Lead")} · ${list === "quiet" ? (c.last_contacted_at ? "last contact " + ago(c.last_contacted_at) : "never contacted") : "came in " + ago(c.created_at)}</div>
-    </a>`).join("");
+  const { data: rows } = await q.limit(200);
+  if (!rows?.length) { $("tbl").innerHTML = `<p class="empty">No leads in this list.</p>`; return; }
+  $("tbl").innerHTML = `<div class="tbl"><div class="tr th"><span>Name</span><span>Stage</span><span>What's going on</span><span>Source</span><span>Last contact</span></div>` +
+    rows.map(c => `<a class="tr" href="#/p/${c.id}">
+      <span class="nm">${esc(fullName(c))} ${c.is_hot ? `<span class="tag">HOT</span>` : c.pond_id ? `<span class="tag pond">POND</span>` : !c.first_contacted_at ? `<span class="tag need">NEW</span>` : ""}</span>
+      <span class="c-stage">${esc(STAGES[c.stage] || c.stage)}</span>
+      <span class="why" style="margin:0">${esc(c.hot_reason || (c.first_contacted_at ? "" : "Not contacted yet"))}</span>
+      <span class="c-src meta" style="margin:0">${esc(c.source || "")}</span>
+      <span class="meta" style="margin:0">${c.last_contacted_at ? ago(c.last_contacted_at) : "Never"}</span></a>`).join("") + `</div>`;
+}
+
+// ---------------- Office pond ----------------
+async function showPond() {
+  await chrome("Office pond", "pond");
+  app.innerHTML = `<p class="note narrow">Office leads waiting for an agent. Open one and tap "Take this lead." If you don't contact it within 48 hours, it goes back to the pond.</p><div id="pl" class="narrow"></div>`;
+  const { data: rows } = await sb.from("contacts").select("*").not("pond_id","is",null).order("created_at", { ascending:false }).limit(100);
+  $("pl").innerHTML = rows?.length ? rows.map(leadCard).join("") : `<p class="empty">The office pond is empty.</p>`;
 }
 
 // ---------------- Person page ----------------
 async function showPerson(id) {
-  tabsEl.innerHTML = "";
   const { data: c } = await sb.from("contacts").select("*").eq("id", id).single();
-  if (!c) { header("Not found"); app.innerHTML = `<a class="back" href="#/">‹ My Desk</a><p>That lead isn't on your desk.</p>`; return; }
-  header(fullName(c));
+  await chrome(c ? fullName(c) : "Not found", "crm");
+  if (!c) { app.innerHTML = `<a class="back" href="#/crm">‹ My CRM</a><p>That lead isn't on your list.</p>`; return; }
   const [{ data: ev }, { data: notes }, { data: tasks }, { data: enr }] = await Promise.all([
     sb.from("events").select("kind, address, mls_number, occurred_at").eq("contact_id", id).order("occurred_at", { ascending:false }).limit(50),
     sb.from("notes").select("kind, body, created_at").eq("contact_id", id).order("created_at", { ascending:false }).limit(50),
@@ -184,88 +305,93 @@ async function showPerson(id) {
     ...(ev||[]).map(e => ({ at:e.occurred_at, who:"Website", text:`${evWords[e.kind] || e.kind} ${e.address || e.mls_number || ""}`.trim() })),
     ...(notes||[]).map(n => ({ at:n.created_at, who:{ call:"Call", email:"Email", text:"Text", note:"Note" }[n.kind], text:n.body || "" })),
   ].sort((a, b) => new Date(b.at) - new Date(a.at));
-  const inPond = !!c.pond_id;
-  const plan = (enr||[]).find(e => e.status === "active");
-
+  const inPond = !!c.pond_id, plan = (enr||[]).find(e => e.status === "active");
   app.innerHTML = `
-    <a class="back" href="#/">‹ My Desk</a>
-    <div class="meta">${esc({ new_lead:"New lead", active:"Active", client:"Client", under_contract:"Under contract", closed:"Closed", sphere:"Sphere", dead:"Not interested" }[c.stage] || c.stage)} · ${esc(c.source || "Lead")}${inPond ? " · in the office pond" : ""}</div>
-    ${c.hot_reason ? `<div class="hotbar">${esc(c.hot_reason)}</div>` : ""}
-    ${inPond ? `<p><button class="btn" id="claim">Take this lead</button></p><p id="cmsg" class="msg"></p>` : `
-    <div class="btns">
-      ${c.phone ? `<a class="btn" href="tel:${esc(c.phone)}">Call</a>` : `<span class="btn" style="opacity:.4" aria-disabled="true">Call</span>`}
-      ${c.email ? `<a class="btn" href="mailto:${esc(c.email)}">Email</a>` : `<span class="btn" style="opacity:.4" aria-disabled="true">Email</span>`}
-      <button class="btn ghost" id="logbtn">Log call</button>
-    </div>`}
-    <div>${esc(c.email || "")}</div><div>${esc(c.phone || "No phone on file")}</div>
-    <p class="note">${tasks?.[0] ? `Next task: ${esc(tasks[0].title)} · ${fmtDay(tasks[0].due_at)}` : "No next task set."}${plan ? ` · On plan "${esc(plan.action_plans?.name)}" (step ${plan.current_step})` : ""}</p>
-    <div id="logform"></div>
-    <h2>Timeline</h2>
-    ${timeline.length ? timeline.map(t => `<div class="card"><div class="meta" style="margin:0">${fmtWhen(t.at)} · ${esc(t.who)}</div><div>${esc(t.text)}</div></div>`).join("") : `<p class="empty">Nothing yet.</p>`}`;
-
-  if (inPond) document.getElementById("claim").onclick = async () => {
+    <a class="back" href="#/crm">‹ My CRM</a>
+    <div class="cols">
+      <div>
+        <div class="panel">
+          <div class="meta" style="margin:0">${esc(STAGES[c.stage] || c.stage)} · ${esc(c.source || "Lead")}${inPond ? " · in the office pond" : ""}</div>
+          ${c.hot_reason ? `<div class="hotbar">${esc(c.hot_reason)}</div>` : ""}
+          ${inPond ? `<p><button class="btn" id="claim">Take this lead</button></p><p id="cmsg" class="msg"></p>` : `
+          <div class="btns">
+            ${c.phone ? `<a class="btn" href="tel:${esc(c.phone)}">Call</a>` : `<span class="btn" style="opacity:.4" aria-disabled="true">Call</span>`}
+            ${c.email ? `<a class="btn" href="mailto:${esc(c.email)}">Email</a>` : `<span class="btn" style="opacity:.4" aria-disabled="true">Email</span>`}
+            <button class="btn ghost" id="logbtn">Log call</button>
+          </div>`}
+          <div id="logform"></div>
+        </div>
+        <div class="panel" style="margin-top:20px"><h2>Timeline</h2>
+          ${timeline.length ? timeline.map(t => `<div class="card"><div class="meta" style="margin:0">${fmtWhen(t.at)} · ${esc(t.who)}</div><div>${esc(t.text)}</div></div>`).join("") : `<p class="empty">Nothing yet.</p>`}
+        </div>
+      </div>
+      <div class="panel"><h2>Details</h2>
+        <div><strong>Email</strong><br>${esc(c.email || "None")}</div>
+        <div style="margin-top:10px"><strong>Phone</strong><br>${esc(c.phone || "None on file")}</div>
+        <div style="margin-top:10px"><strong>Next task</strong><br>${tasks?.[0] ? `${esc(tasks[0].title)} · ${fmtDay(tasks[0].due_at)}` : "None set"}</div>
+        <div style="margin-top:10px"><strong>Follow-up plan</strong><br>${plan ? `${esc(plan.action_plans?.name)} (step ${plan.current_step})` : "None"}</div>
+        <div style="margin-top:10px"><strong>Came in</strong><br>${fmtWhen(c.created_at)}</div>
+        <div style="margin-top:10px"><strong>Last contact</strong><br>${c.last_contacted_at ? fmtWhen(c.last_contacted_at) : "Never"}</div>
+      </div>
+    </div>`;
+  if (inPond) $("claim").onclick = async () => {
     const { data } = await sb.rpc("claim_lead", { p_contact: id });
-    if (data?.ok) showPerson(id); else { const m = document.getElementById("cmsg"); m.className = "msg bad"; m.textContent = "Couldn't take it: " + (data?.error || "try again"); }
+    if (data?.ok) showPerson(id); else { const m = $("cmsg"); m.className = "msg bad"; m.textContent = "Couldn't take it: " + (data?.error || "try again"); }
   };
-  else document.getElementById("logbtn").onclick = () => showLogForm(id);
+  else $("logbtn").onclick = () => showLogForm(id);
 }
 
 function showLogForm(id) {
   const tmr = new Date(Date.now() + 86400000).toLocaleDateString("en-CA", { timeZone:TZ });
-  document.getElementById("logform").innerHTML = `<div class="card">
+  $("logform").innerHTML = `<div style="border-top:1px solid var(--line);margin-top:6px;padding-top:6px">
     <label for="lk">What happened</label>
     <select id="lk"><option value="call">Call</option><option value="email">Email</option><option value="text">Text</option><option value="note">Note only</option></select>
     <label for="lb">Notes</label><textarea id="lb" placeholder="What did they say?"></textarea>
     <label for="lt">Next task</label><input type="text" id="lt" placeholder="e.g. Show 118 Tavern Rd Saturday">
     <label for="ld">Due</label><input type="date" id="ld" value="${tmr}">
     <p><button class="btn" id="lsave">Save</button></p><p id="lmsg" class="msg"></p></div>`;
-  document.getElementById("lsave").onclick = async () => {
-    const due = document.getElementById("ld").value;
+  $("lsave").onclick = async () => {
+    const due = $("ld").value;
     const { data, error } = await sb.rpc("log_activity", {
-      p_contact:id, p_kind:document.getElementById("lk").value, p_body:document.getElementById("lb").value,
-      p_next_title:document.getElementById("lt").value, p_next_due: due ? new Date(due + "T09:00:00").toISOString() : null });
-    if (data?.ok) showPerson(id); else { const m = document.getElementById("lmsg"); m.className = "msg bad"; m.textContent = "Didn't save: " + (data?.error || error?.message || "try again"); }
+      p_contact:id, p_kind:$("lk").value, p_body:$("lb").value,
+      p_next_title:$("lt").value, p_next_due: due ? new Date(due + "T09:00:00").toISOString() : null });
+    if (data?.ok) showPerson(id); else { const m = $("lmsg"); m.className = "msg bad"; m.textContent = "Didn't save: " + (data?.error || error?.message || "try again"); }
   };
 }
 
-// ---------------- Admin (Tracy and Gavin only) ----------------
-function adminShell(title) {
-  header(title, true);
-  tabsEl.innerHTML = [["#/admin","Who needs a nudge"],["#/admin/flow","Where leads go"],["#/admin/plans","Follow-up plans"],["#/admin/emails","Held emails"],["#/admin/agents","Agents"],["#/","‹ My Desk"]]
-    .map(([h, l]) => `<a class="tab ${location.hash === h ? "on" : ""}" href="${h}">${l}</a>`).join("");
-}
-
+// ---------------- Broker pages (Tracy and Gavin only) ----------------
 async function showBroker() {
-  adminShell("Who needs a nudge");
+  await chrome("Who needs a nudge", "a-nudge");
   const [{ data: s }, { data: rows }] = await Promise.all([sb.rpc("broker_summary"), sb.rpc("broker_unworked")]);
   const mins = s?.median_minutes_to_first_contact;
-  app.innerHTML = `
-    <div class="grid2" style="margin-top:12px">
-      <div class="stat"><b>${s?.unworked ?? 0}</b>Leads nobody has contacted</div>
+  app.innerHTML = `<div class="grid2 narrow">
+      <div class="stat"><b>${s?.unworked ?? 0}</b>Leads nobody has contacted (all agents)</div>
       <div class="stat"><b>${mins == null ? "—" : mins < 60 ? mins + " min" : Math.round(mins/60) + " hrs"}</b>Typical time to first contact (30 days)</div>
     </div>
-    <h2>Agents with untouched leads</h2>
-    ${rows?.length ? `<div class="box">` + rows.map(r => `<div class="row" style="display:block">
-        <div style="display:flex;justify-content:space-between"><strong>${esc(r.agent_name)}</strong><span class="${r.unworked > 1 ? "late" : ""}" style="font-weight:700">${r.unworked} unworked</span></div>
-        <div class="meta">Oldest: ${ago(r.oldest)} · ${esc(r.office || "")}</div></div>`).join("") + `</div>` : `<p class="empty">Every assigned lead has been contacted.</p>`}
-    <h2>Office ponds</h2>
-    <div class="box">${(s?.ponds||[]).map(p => `<div class="row"><span>${esc(p.pond)}</span><strong style="margin-left:auto">${p.waiting} waiting</strong></div>`).join("")}</div>
-    <h2>Where leads came from (30 days)</h2>
-    <div class="box">${(s?.sources||[]).length ? s.sources.map(x => `<div class="row"><span>${esc(x.source)}</span><strong style="margin-left:auto">${x.leads}</strong></div>`).join("") : `<div class="row empty">No leads yet.</div>`}</div>`;
+    <div class="cols" style="margin-top:20px">
+      <div class="panel"><h2>Agents with untouched leads</h2>
+        ${rows?.length ? `<div class="box">` + rows.map(r => `<div class="row" style="display:block">
+          <div style="display:flex;justify-content:space-between"><strong>${esc(r.agent_name)}</strong><span class="${r.unworked > 1 ? "late" : ""}" style="font-weight:700">${r.unworked} unworked</span></div>
+          <div class="meta">Oldest: ${ago(r.oldest)} · ${esc(r.office || "")}</div></div>`).join("") + `</div>` : `<p class="empty">Every assigned lead has been contacted.</p>`}</div>
+      <div>
+        <div class="panel"><h2>Office ponds</h2><div class="box">${(s?.ponds||[]).map(p => `<div class="row"><span>${esc(p.pond)}</span><strong style="margin-left:auto">${p.waiting} waiting</strong></div>`).join("")}</div></div>
+        <div class="panel" style="margin-top:20px"><h2>Where leads came from (30 days)</h2><div class="box">${(s?.sources||[]).length ? s.sources.map(x => `<div class="row"><span>${esc(x.source)}</span><strong style="margin-left:auto">${x.leads}</strong></div>`).join("") : `<div class="row empty">No leads yet.</div>`}</div></div>
+      </div>
+    </div>`;
 }
 
 async function showFlow() {
-  adminShell("Where new leads go");
+  await chrome("Where new leads go", "a-flow");
   const [{ data: rules }, { data: plans }, { data: agents }] = await Promise.all([
     sb.from("lead_flow_rules").select("*").order("priority"), sb.from("action_plans").select("id, name").eq("active", true),
     sb.from("agents").select("id, full_name").eq("active", true).order("full_name") ]);
-  app.innerHTML = `
+  app.innerHTML = `<div class="cols"><div>
     <p>Rules run top to bottom. The first one that matches wins. A lead that matches nothing goes to the Martinsburg pond.</p>
     ${(rules||[]).map(r => `<div class="card"><div class="meta" style="margin:0">Rule ${r.priority}${r.active ? "" : " · OFF"}</div>
       <div style="font-weight:600">${esc(r.label)}</div>
       <p style="margin:8px 0 0"><button class="btn small ghost" data-toggle="${r.id}" data-on="${r.active}">${r.active ? "Turn off" : "Turn on"}</button></p></div>`).join("")}
-    <h2>Add a rule</h2>
-    <div class="card">
+    <p class="note">Office leads an agent takes but doesn't contact within 48 hours go back to the pond.</p></div>
+    <div class="panel"><h2>Add a rule</h2>
       <label for="rs">Lead source</label><input type="text" id="rs" value="Blue Ribbon Homes">
       <label for="rz">ZIP starts with (blank = any)</label><input type="text" id="rz" placeholder="e.g. 254 for Martinsburg area">
       <label for="rd">Send to</label><select id="rd">
@@ -273,76 +399,67 @@ async function showFlow() {
         ${(agents||[]).map(a => `<option value="agent:${a.id}">${esc(a.full_name)} (agent)</option>`).join("")}</select>
       <label for="rp">Start follow-up plan</label><select id="rp"><option value="">None</option>${(plans||[]).map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("")}</select>
       <label for="rn">Order (lower runs first)</label><input type="number" id="rn" value="40">
-      <p><button class="btn" id="radd">Add rule</button></p><p id="rmsg" class="msg"></p>
-    </div>
-    <h2>Ponds</h2>
-    <div class="box">${PONDS.map(p => `<div class="row">${esc(p.name)}</div>`).join("")}</div>
-    <p class="note">Office leads an agent takes but doesn't contact within 48 hours go back to the pond.</p>`;
+      <p><button class="btn" id="radd">Add rule</button></p><p id="rmsg" class="msg"></p></div></div>`;
   app.querySelectorAll("[data-toggle]").forEach(b => b.onclick = async () => {
     await sb.from("lead_flow_rules").update({ active: b.dataset.on !== "true" }).eq("id", b.dataset.toggle); showFlow(); });
-  document.getElementById("radd").onclick = async () => {
-    const [kind, target] = document.getElementById("rd").value.split(":");
-    const src = document.getElementById("rs").value.trim(), zip = document.getElementById("rz").value.trim();
-    const plan = document.getElementById("rp").value, destName = document.getElementById("rd").selectedOptions[0].textContent;
-    const planName = plan ? document.getElementById("rp").selectedOptions[0].textContent : "";
+  $("radd").onclick = async () => {
+    const [kind, target] = $("rd").value.split(":");
+    const src = $("rs").value.trim(), zip = $("rz").value.trim(), plan = $("rp").value;
+    const destName = $("rd").selectedOptions[0].textContent, planName = plan ? $("rp").selectedOptions[0].textContent : "";
     const label = `${src || "Any source"}${zip ? ", ZIPs " + zip + "xx" : ""} → ${destName}${planName ? `, start "${planName}"` : ""}`;
     const co = (await sb.from("companies").select("id").eq("name","Blue Ribbon Realty").single()).data.id;
-    const { error } = await sb.from("lead_flow_rules").insert({ company_id:co, priority:+document.getElementById("rn").value || 40, label,
+    const { error } = await sb.from("lead_flow_rules").insert({ company_id:co, priority:+$("rn").value || 40, label,
       match_source: src || null, match_zip_prefix: zip || null, to_pond_id: kind === "pond" ? target : null, to_agent_id: kind === "agent" ? target : null, start_plan_id: plan || null });
-    if (error) { const m = document.getElementById("rmsg"); m.className = "msg bad"; m.textContent = error.message; } else showFlow();
+    if (error) { const m = $("rmsg"); m.className = "msg bad"; m.textContent = error.message; } else showFlow();
   };
 }
 
 async function showPlans() {
-  adminShell("Follow-up plans");
+  await chrome("Follow-up plans", "a-plans");
   const { data: plans } = await sb.from("action_plans").select("id, name, active, action_plan_steps(id, step_no, day_offset, kind, subject, body, task_title)").order("name");
-  app.innerHTML = `<p>Each step runs on its day. Tasks land on the agent's Due today list. Emails are written here and <strong>held</strong> until you turn sending on.</p>` +
+  app.innerHTML = `<div class="narrow"><p>Each step runs on its day. Tasks land on the agent's Tasks list. Emails are written here and <strong>held</strong> until you turn sending on.</p>` +
     (plans||[]).map(p => `<h2>${esc(p.name)}</h2>` + p.action_plan_steps.sort((a, b) => a.step_no - b.step_no).map(s => `
       <div class="card"><div class="meta" style="margin:0">Step ${s.step_no} · Day ${s.day_offset} · ${s.kind === "email" ? "Email" : "Task"}</div>
       ${s.kind === "email" ? `<label for="s${s.id}">Subject</label><input type="text" id="s${s.id}" value="${esc(s.subject)}">
         <label for="b${s.id}">Email</label><textarea id="b${s.id}" style="min-height:180px">${esc(s.body)}</textarea>`
       : `<label for="k${s.id}">Task</label><input type="text" id="k${s.id}" value="${esc(s.task_title)}">`}
       <p><button class="btn small" data-save="${s.id}" data-kind="${s.kind}">Save step</button> <span class="msg" id="m${s.id}"></span></p></div>`).join("")).join("") +
-    `<p class="note">{first_name} fills in the buyer's first name.</p>`;
+    `<p class="note">{first_name} fills in the buyer's first name.</p></div>`;
   app.querySelectorAll("[data-save]").forEach(b => b.onclick = async () => {
-    const id = b.dataset.save, patch = b.dataset.kind === "email"
-      ? { subject: document.getElementById("s" + id).value, body: document.getElementById("b" + id).value }
-      : { task_title: document.getElementById("k" + id).value };
+    const id = b.dataset.save, patch = b.dataset.kind === "email" ? { subject: $("s" + id).value, body: $("b" + id).value } : { task_title: $("k" + id).value };
     const { error } = await sb.from("action_plan_steps").update(patch).eq("id", id);
-    const m = document.getElementById("m" + id); m.className = "msg " + (error ? "bad" : "good"); m.textContent = error ? error.message : "Saved";
+    const m = $("m" + id); m.className = "msg " + (error ? "bad" : "good"); m.textContent = error ? error.message : "Saved";
   });
 }
 
 async function showEmails() {
-  adminShell("Held emails");
+  await chrome("Held emails", "a-emails");
   const { data: mails } = await sb.from("email_outbox").select("*").order("created_at", { ascending:false }).limit(50);
-  app.innerHTML = `<div class="hotbar" style="color:var(--ink);background:#E3EAF5">Sending is OFF. Nothing on this page has been emailed to anyone. When you're happy with the wording, tell Claude to turn sending on.</div>
-    ${(mails||[]).length ? mails.map(m => `<div class="card"><div class="meta" style="margin:0">${{ morning:"7 a.m. agent email", plan:"Follow-up plan email", new_lead:"New lead alert" }[m.kind]} · ${esc(m.status)} · ${fmtWhen(m.created_at)}</div>
+  app.innerHTML = `<div class="narrow"><div class="hotbar" style="color:var(--ink);background:#E3EAF5;margin-top:0">Sending is OFF. Nothing on this page has been emailed to anyone. When you're happy with the wording, tell Claude to turn sending on.</div>
+    ${(mails||[]).length ? mails.map(m => `<div class="card" style="margin-top:12px"><div class="meta" style="margin:0">${{ morning:"7 a.m. agent email", plan:"Follow-up plan email", new_lead:"New lead alert" }[m.kind]} · ${esc(m.status)} · ${fmtWhen(m.created_at)}</div>
       <div><strong>To:</strong> ${esc(m.to_name || "")} &lt;${esc(m.to_email)}&gt;</div><div><strong>Subject:</strong> ${esc(m.subject)}</div><pre class="mail">${esc(m.body)}</pre></div>`).join("")
-    : `<p class="empty">No emails waiting yet. The 7 a.m. job and follow-up plans put them here.</p>`}`;
+    : `<p class="empty">No emails waiting yet. The 7 a.m. job and follow-up plans put them here.</p>`}</div>`;
 }
 
 async function showAgents() {
-  adminShell("Agents");
+  await chrome("Agents", "a-agents");
   const { data: agents } = await sb.from("agents").select("id, full_name, email, agent_number, role, active, office_id, auth_user_id").order("full_name");
   const off = id => OFFICES.find(o => o.id === id)?.name || "";
-  app.innerHTML = `<div class="box" style="margin-top:12px">${(agents||[]).map(a => `<div class="row" style="display:block">
+  app.innerHTML = `<div class="cols"><div class="box">${(agents||[]).map(a => `<div class="row" style="display:block">
       <strong>${esc(a.full_name)}</strong>${a.role !== "agent" ? ` <span class="tag pond">${esc(a.role)}</span>` : ""}${a.active ? "" : ` <span class="tag">inactive</span>`}
       <div class="meta">${esc(a.email)} · ${esc(a.agent_number || "no ID")} · ${esc(off(a.office_id))} · ${a.auth_user_id ? "has signed in" : "hasn't signed in yet"}</div></div>`).join("")}</div>
-    <h2>Add an agent</h2>
-    <div class="card">
+    <div class="panel"><h2>Add an agent</h2>
       <label for="an">Name</label><input type="text" id="an">
       <label for="ae">Email</label><input type="email" id="ae">
       <label for="ai">7-digit agent ID</label><input type="text" id="ai" inputmode="numeric">
       <label for="ao">Office</label><select id="ao">${OFFICES.map(o => `<option value="${o.id}">${esc(o.name)}</option>`).join("")}</select>
       <label for="ar">Role</label><select id="ar"><option value="agent">Agent</option><option value="broker">Broker (sees everything)</option></select>
-      <p><button class="btn" id="aadd">Add agent</button></p><p id="amsg" class="msg"></p></div>`;
-  document.getElementById("aadd").onclick = async () => {
+      <p><button class="btn" id="aadd">Add agent</button></p><p id="amsg" class="msg"></p></div></div>`;
+  $("aadd").onclick = async () => {
     const co = (await sb.from("companies").select("id").eq("name","Blue Ribbon Realty").single()).data.id;
-    const { error } = await sb.from("agents").insert({ company_id:co, full_name:document.getElementById("an").value.trim(),
-      email:document.getElementById("ae").value.trim().toLowerCase(), agent_number:document.getElementById("ai").value.trim() || null,
-      office_id:document.getElementById("ao").value, role:document.getElementById("ar").value });
-    if (error) { const m = document.getElementById("amsg"); m.className = "msg bad"; m.textContent = error.message; } else showAgents();
+    const { error } = await sb.from("agents").insert({ company_id:co, full_name:$("an").value.trim(), email:$("ae").value.trim().toLowerCase(),
+      agent_number:$("ai").value.trim() || null, office_id:$("ao").value, role:$("ar").value });
+    if (error) { const m = $("amsg"); m.className = "msg bad"; m.textContent = error.message; } else showAgents();
   };
 }
 
@@ -351,18 +468,20 @@ async function route() {
   const h = location.hash || "#/";
   window.scrollTo(0, 0);
   if (h.startsWith("#/p/")) return showPerson(h.slice(4));
+  if (h.startsWith("#/crm")) { const [, , list, term] = h.split("/"); return showCrm(list || "all", term ? decodeURIComponent(term) : ""); }
+  if (h === "#/tasks") return showTasks();
+  if (h === "#/pond") return showPond();
   if (h.startsWith("#/admin")) {
-    if (!ME.boss) return showDesk();
+    if (!ME.boss) return showPriorities();
     return ({ "#/admin":showBroker, "#/admin/flow":showFlow, "#/admin/plans":showPlans, "#/admin/emails":showEmails, "#/admin/agents":showAgents }[h] || showBroker)();
   }
-  if (h.startsWith("#/list/")) return showDesk(h.slice(7));
-  return showDesk("hot");
+  return showPriorities();
 }
 
 async function start(user) {
   const { data: me } = await sb.from("agents").select("id, full_name, role, office_id").eq("auth_user_id", user.id).maybeSingle();
-  if (!me) { header("My Desk"); tabsEl.innerHTML = ""; app.innerHTML = `<p>You're signed in, but your email isn't on the agent roster yet. Email Tracy.</p>`; return; }
-  ME = { ...me, boss: me.role !== "agent", boss_view: false };
+  if (!me) { side.style.display = "none"; tilesEl.innerHTML = ""; app.innerHTML = `<p>You're signed in, but your email isn't on the agent roster yet. Email Tracy.</p>`; return; }
+  ME = { ...me, boss: me.role !== "agent" };
   [PONDS, OFFICES] = await Promise.all([ sb.from("ponds").select("id, name").order("name").then(r => r.data || []),
                                          sb.from("offices").select("id, name").order("name").then(r => r.data || []) ]);
   window.onhashchange = route;
