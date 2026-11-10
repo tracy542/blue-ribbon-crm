@@ -50,8 +50,8 @@ async function showLogin() {
     <button class="btn" id="go">Email me a link</button><p id="msg"></p>`;
   document.getElementById("go").onclick = async () => {
     const email = document.getElementById("em").value.trim();
-    const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.href, shouldCreateUser:false } });
-    document.getElementById("msg").textContent = error ? "That email isn't on the roster. Email Tracy." : "Check your email for the link.";
+    const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin } });   // first sign-in links to the roster row by email
+    document.getElementById("msg").textContent = error ? "Couldn't send the link. Wait a minute and try again, or email Tracy." : "Check your email for the link.";
   };
 }
 
