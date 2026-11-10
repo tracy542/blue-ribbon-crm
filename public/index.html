@@ -82,6 +82,10 @@
   pre.mail { white-space:pre-wrap; font:16px/1.5 Inter, system-ui, sans-serif; background:#FAFBFC; border:1px solid var(--line); border-radius:12px; padding:14px; margin:6px 0 0 }
   .back { display:inline-block; font-size:16px; margin-bottom:6px }
   .narrow { max-width:720px }
+  .tr.rr { grid-template-columns:minmax(0,2fr) minmax(0,.9fr) minmax(0,1.1fr) minmax(0,1.2fr) minmax(0,1.6fr) }
+  .grid3 { display:grid; grid-template-columns:minmax(0,.7fr) minmax(0,1.6fr) minmax(0,1.2fr); gap:10px }
+  label.ck { display:flex; align-items:center; gap:10px; font-weight:600; margin:14px 0 4px; min-height:44px }
+  label.ck input { width:24px; height:24px; flex:none }
 
   /* ---------- Phone: menu slides in, tiles 2x2, table stacks ---------- */
   @media (max-width: 860px) {
@@ -96,6 +100,7 @@
     .cols { grid-template-columns:1fr }
     .tr { grid-template-columns:1fr; gap:2px } .th { display:none }
     .tr .c-stage, .tr .c-src { display:none }
+    .tr.rr { grid-template-columns:1fr } .grid2, .grid3 { grid-template-columns:1fr }
   }
 </style>
 </head>
@@ -182,9 +187,12 @@ async function counts() {
 async function chrome(title, active) {
   $("title").textContent = title;
   side.classList.remove("open");
-  const n = await counts();
+  const n = ME.staff ? { need:0, hot:0, today:0, late:0, pond:0, crm:0 } : await counts();
   const link = (h, label, key, count) => `<a href="${h}" class="${active === key ? "on" : ""}">${label}${count != null ? `<span class="count">${count}</span>` : ""}</a>`;
-  navEl.innerHTML =
+  navEl.innerHTML = ME.staff ?
+    `<div class="navgroup">Admin</div>` + link("#/admin/agents", "Agent roster", "a-agents") +
+    `<a href="https://tools.ribbonway.com/home" target="_blank" rel="noopener">Tools<span class="count">↗</span></a>` +
+    `<a href="https://cda.ribbonway.com" target="_blank" rel="noopener">CDA<span class="count">↗</span></a>` :
     link("#/crm", "My CRM", "crm", n.crm) +
     link("#/", "My Priorities", "prio", n.hot + n.today + n.late) +
     link("#/tasks", "Tasks", "tasks", n.today + n.late) +
@@ -199,6 +207,7 @@ async function chrome(title, active) {
   $("signout").onclick = async e => { e.preventDefault(); await sb.auth.signOut(); location.hash = ""; location.reload(); };
   $("who").textContent = etNow().toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
   const tile = (h, cls, num, label, key) => `<a class="tile ${cls} ${active === key ? "on" : ""}" href="${h}"><b>${num}</b><span>${label}</span></a>`;
+  if (ME.staff || active === "a-agents") { tilesEl.innerHTML = ""; return; }
   tilesEl.innerHTML =
     tile("#/crm/need", "need", n.need, "Needs contacted", "crm-need") +
     tile("#/crm/hot", "hot", n.hot, "Hot leads", "crm-hot") +
@@ -442,27 +451,182 @@ async function showEmails() {
     : `<p class="empty">No emails waiting yet. The 7 a.m. job and follow-up plans put them here.</p>`}</div>`;
 }
 
+// ---------------- Admin > Agent roster (the one roster; feeds the CDA dropdown) ----------------
+const OFF_NAMES = { MBG:"Martinsburg", FR:"Front Royal", Bow:"Bowie", REF:"Referral", "":"No office" };
+const ST_NAMES = { active:"Active", referral:"Referral", inactive:"Inactive" };
+const pct = v => (v === null || v === undefined || v === "") ? "—" : `${v}%`;
+const arfText = v => (v === null || v === undefined || v === "") ? "Standard" : (String(v) === "0" ? "None" : `${v}`);
+let RF = { st:"active", off:"", q:"", flagged:false };
+
+async function rosterSyncNote() {
+  const { data } = await sb.rpc("roster_sync_status");
+  if (!data) return "";
+  return data.enabled
+    ? `<p class="note">CDA dropdown: saves go out within seconds.${data.waiting ? ` ${data.waiting} waiting now.` : ""}${data.errors ? ` <b class="late">${data.errors} failed — see the flags.</b>` : ""}</p>`
+    : `<div class="hotbar" style="margin:0 0 14px">CDA dropdown updates are <b>off</b> while we check the CRM against the CDA list. Saves here are kept and will go out when it's switched on.${data.waiting ? ` ${data.waiting} waiting.` : ""}</div>`;
+}
+
 async function showAgents() {
   await chrome("Agent roster", "a-agents");
-  const { data: agents } = await sb.from("agents").select("id, full_name, email, agent_number, role, active, office_id, auth_user_id").order("full_name");
-  const off = id => OFFICES.find(o => o.id === id)?.name || "";
-  app.innerHTML = `<div class="cols"><div class="box">${(agents||[]).map(a => `<div class="row" style="display:block">
-      <strong>${esc(a.full_name)}</strong>${a.role !== "agent" ? ` <span class="tag pond">${esc(a.role)}</span>` : ""}${a.active ? "" : ` <span class="tag">inactive</span>`}
-      <div class="meta">${esc(a.email)} · ${esc(a.agent_number || "no ID")} · ${esc(off(a.office_id))} · ${a.auth_user_id ? "has signed in" : "hasn't signed in yet"}</div></div>`).join("")}</div>
-    <div class="panel"><h2>Add an agent</h2>
-      <label for="an">Name</label><input type="text" id="an">
-      <label for="ae">Email</label><input type="email" id="ae">
-      <label for="ai">7-digit agent ID</label><input type="text" id="ai" inputmode="numeric">
-      <label for="ao">Office</label><select id="ao">${OFFICES.map(o => `<option value="${o.id}">${esc(o.name)}</option>`).join("")}</select>
-      <label for="ar">Role</label><select id="ar"><option value="agent">Agent</option><option value="broker">Broker (sees everything)</option></select>
-      <p><button class="btn" id="aadd">Add agent</button></p><p id="amsg" class="msg"></p></div></div>`;
-  $("aadd").onclick = async () => {
-    const co = (await sb.from("companies").select("id").eq("name","Blue Ribbon Realty").single()).data.id;
-    const { error } = await sb.from("agents").insert({ company_id:co, full_name:$("an").value.trim(), email:$("ae").value.trim().toLowerCase(),
-      agent_number:$("ai").value.trim() || null, office_id:$("ao").value, role:$("ar").value });
-    if (error) { const m = $("amsg"); m.className = "msg bad"; m.textContent = error.message; } else showAgents();
+  app.innerHTML = `<p class="empty">Loading the roster…</p>`;
+  const [{ data: rows, error }, { data: fl }] = await Promise.all([
+    sb.from("roster").select("agent_id, first, last, email, phone, office, status, plan_name, split_pct, cda_split_pct, cda_arf_pct, pays_arf, in_cda_list, sync_state").order("last").order("first"),
+    sb.from("roster_flags").select("agent_id, flags"),
+  ]);
+  if (error) { app.innerHTML = `<p class="msg bad">Couldn't load the roster: ${esc(error.message)}</p>`; return; }
+  const flags = Object.fromEntries((fl || []).map(f => [f.agent_id, f.flags || []]));
+  const n = st => rows.filter(r => r.status === st).length;
+  const flaggedN = rows.filter(r => r.status !== "inactive" && (flags[r.agent_id] || []).length).length;
+  const chip = (key, label) => `<a href="#" class="chip ${RF.st === key && !RF.flagged ? "on" : ""}" data-st="${key}">${label}</a>`;
+  app.innerHTML = `${await rosterSyncNote()}
+    <div class="chips">
+      ${chip("active", `Active · ${n("active")}`)}${chip("referral", `Referral · ${n("referral")}`)}${chip("inactive", `Inactive · ${n("inactive")}`)}${chip("all", `All · ${rows.length}`)}
+      <a href="#" class="chip ${RF.flagged ? "on" : ""}" data-fl="1">Needs a look · ${flaggedN}</a>
+      <a class="btn small" href="#/admin/agents/new" style="margin-left:auto">Add an agent</a>
+    </div>
+    <div class="grid2" style="margin-bottom:14px">
+      <div><label for="rq">Find</label><input type="search" id="rq" placeholder="Name, email, phone or ID" value="${esc(RF.q)}"></div>
+      <div><label for="ro">Office</label><select id="ro"><option value="">All offices</option>${["MBG","FR","Bow","REF"].map(o => `<option value="${o}" ${RF.off === o ? "selected" : ""}>${OFF_NAMES[o]}</option>`).join("")}</select></div>
+    </div>
+    <div class="tbl" id="rtbl"></div>`;
+  const draw = () => {
+    const q = RF.q.toLowerCase();
+    const list = rows.filter(r =>
+      (RF.flagged ? r.status !== "inactive" && (flags[r.agent_id] || []).length : RF.st === "all" || r.status === RF.st) &&
+      (!RF.off || r.office === RF.off) &&
+      (!q || `${r.first} ${r.last} ${r.email} ${r.phone} ${r.agent_id}`.toLowerCase().includes(q)));
+    $("rtbl").innerHTML = `<div class="tr th rr"><span>Agent</span><span>Office</span><span>CDA split · ARF</span><span>Plan</span><span>Needs a look</span></div>` +
+      (list.length ? list.map(r => {
+        const f = flags[r.agent_id] || [];
+        return `<a class="tr rr" href="#/admin/agents/${r.agent_id}">
+          <span><span class="nm">${esc(`${r.first} ${r.last}`.trim())}</span>${r.status !== "active" ? ` <span class="tag pond">${ST_NAMES[r.status]}</span>` : ""}<div class="meta">${esc(r.agent_id)} · ${esc(r.email || "no email")}</div></span>
+          <span>${esc(OFF_NAMES[r.office] || r.office)}</span>
+          <span>${pct(r.cda_split_pct)} · ARF ${esc(arfText(r.cda_arf_pct))}${r.in_cda_list ? "" : `<div class="meta">not on CDA list</div>`}</span>
+          <span>${esc(r.plan_name || "—")}</span>
+          <span>${f.length ? `<span class="tag">${f.length}</span> <span class="meta">${esc(f[0])}</span>` : `<span class="meta">—</span>`}</span>
+        </a>`; }).join("") : `<div class="row empty">No agents match.</div>`);
+  };
+  draw();
+  app.querySelectorAll("[data-st]").forEach(a => a.onclick = e => { e.preventDefault(); RF.st = a.dataset.st; RF.flagged = false; showAgents(); });
+  app.querySelector("[data-fl]").onclick = e => { e.preventDefault(); RF.flagged = true; showAgents(); };
+  $("rq").oninput = e => { RF.q = e.target.value; draw(); };
+  $("ro").onchange = e => { RF.off = e.target.value; draw(); };
+}
+
+async function showAgentEdit(id) {
+  const isNew = id === "new";
+  await chrome(isNew ? "Add an agent" : "Agent", "a-agents");
+  let r = { agent_id:"", first:"", last:"", email:"", phone:"", office:"MBG", status:"active", mls_id:"", licenses:[], mailing:"", hire_date:null,
+            plan_name:"", split:"", split_pct:null, net_pct:null, pays_arf:"", split_note:"", split_review:"", split_verified:null,
+            cda_split_pct:"", cda_arf_pct:"", fee_status:"", fee_since:"", fee_checked_at:"", fee_override:"", brokersumo_id:"", not_in_brokersumo:false, notes:"" };
+  let flags = [], hist = [];
+  if (!isNew) {
+    const [a, b, c] = await Promise.all([
+      sb.from("roster").select("*").eq("agent_id", id).maybeSingle(),
+      sb.from("roster_flags").select("flags").eq("agent_id", id).maybeSingle(),
+      sb.from("roster_history").select("at, by, changes").eq("agent_id", id).order("at", { ascending:false }).limit(15),
+    ]);
+    if (!a.data) { app.innerHTML = `<p class="msg bad">No agent with ID ${esc(id)}.</p><a href="#/admin/agents">Back to the roster</a>`; return; }
+    r = a.data; flags = b.data?.flags || []; hist = c.data || [];
+    $("title").textContent = `${r.first} ${r.last}`.trim();
+  }
+  const v = x => esc(x ?? "");
+  const opt = (val, cur, label) => `<option value="${val}" ${String(cur ?? "") === val ? "selected" : ""}>${label}</option>`;
+  const ver = r.split_verified;
+  const licRow = (l, i) => `<div class="grid3 lic" data-i="${i}">
+      <div><label>State</label><select class="ls">${["","WV","VA","MD","PA","DC"].map(s => opt(s, l.state, s || "—")).join("")}</select></div>
+      <div><label>License number</label><input type="text" class="ln" value="${v(l.number)}"></div>
+      <div><label>Expires</label><input type="date" class="le" value="${v(l.exp)}"></div></div>`;
+  app.innerHTML = `<a class="back" href="#/admin/agents">← Agent roster</a>
+    ${flags.length ? `<div class="hotbar"><b>Needs a look</b><ul style="margin:6px 0 0 18px;padding:0">${flags.map(f => `<li>${esc(f)}</li>`).join("")}</ul></div>` : ""}
+    <div class="cols" style="margin-top:12px">
+      <div>
+        <div class="panel"><h2>Agent</h2>
+          <div class="grid2">
+            <div><label for="f_id">7-digit agent ID</label><input type="text" id="f_id" inputmode="numeric" value="${v(r.agent_id)}" ${isNew ? "" : "disabled"}></div>
+            <div><label for="f_status">Status</label><select id="f_status">${opt("active", r.status, "Active")}${opt("referral", r.status, "Referral")}${opt("inactive", r.status, "Inactive (left)")}</select></div>
+            <div><label for="f_first">First name</label><input type="text" id="f_first" value="${v(r.first)}"></div>
+            <div><label for="f_last">Last name</label><input type="text" id="f_last" value="${v(r.last)}"></div>
+            <div><label for="f_email">Email</label><input type="email" id="f_email" value="${v(r.email)}"></div>
+            <div><label for="f_phone">Cell phone</label><input type="text" id="f_phone" value="${v(r.phone)}"></div>
+            <div><label for="f_office">Office</label><select id="f_office">${["MBG","FR","Bow","REF",""].map(o => opt(o, r.office, OFF_NAMES[o])).join("")}</select></div>
+            <div><label for="f_mls">Bright MLS ID</label><input type="text" id="f_mls" value="${v(r.mls_id)}"></div>
+            <div><label for="f_hire">Hire date</label><input type="date" id="f_hire" value="${v(r.hire_date)}"></div>
+            <div><label for="f_bs">BrokerSumo ID</label><input type="text" id="f_bs" value="${v(r.brokersumo_id)}"></div>
+          </div>
+          <label for="f_mail">Mailing address</label><input type="text" id="f_mail" value="${v(r.mailing)}">
+          <label class="ck"><input type="checkbox" id="f_nobs" ${r.not_in_brokersumo ? "checked" : ""}> Not in BrokerSumo</label>
+          ${r.status === "inactive" && r.inactive_on ? `<p class="note">Inactive since ${esc(r.inactive_on)}${r.inactive_by ? ` (${esc(r.inactive_by)})` : ""}.</p>` : ""}
+        </div>
+        <div class="panel" style="margin-top:14px"><h2>Licenses</h2><div id="lics">${(r.licenses || []).map(licRow).join("") || ""}</div>
+          <p><button class="btn small ghost" id="addlic" type="button">Add a license</button></p></div>
+        <div class="panel" style="margin-top:14px"><h2>Notes</h2><textarea id="f_notes" aria-label="Notes">${v(r.notes)}</textarea></div>
+      </div>
+      <div>
+        <div class="panel"><h2>What the CDA pays</h2>
+          <p class="note">These two numbers are what the CDA form uses to pay this agent. They go to the CDA dropdown when you save.</p>
+          <label for="f_cs">CDA split % (agent's share)</label><input type="text" id="f_cs" inputmode="decimal" value="${v(r.cda_split_pct)}">
+          <label for="f_ca">CDA ARF / admin fee</label><input type="text" id="f_ca" value="${v(r.cda_arf_pct)}">
+          <p class="note">Blank = standard ARF. 0 = no ARF or admin fee.</p>
+        </div>
+        <div class="panel" style="margin-top:14px"><h2>Plan</h2>
+          <label for="f_plan">Plan name</label><input type="text" id="f_plan" value="${v(r.plan_name)}">
+          <div class="grid2">
+            <div><label for="f_sp">Plan split %</label><input type="number" step="any" id="f_sp" value="${v(r.split_pct)}"></div>
+            <div><label for="f_np">Net %</label><input type="number" step="any" id="f_np" value="${v(r.net_pct)}"></div>
+          </div>
+          <label for="f_arf">Plan says pays ARF?</label><select id="f_arf">${opt("", r.pays_arf, "Not confirmed")}${opt("yes", r.pays_arf, "Yes")}${opt("no", r.pays_arf, "No")}</select>
+          <label for="f_sn">Split note</label><input type="text" id="f_sn" value="${v(r.split_note)}">
+          <label for="f_sr">Split review (shows as a flag)</label><input type="text" id="f_sr" value="${v(r.split_review)}">
+          <label class="ck"><input type="checkbox" id="f_ver" ${ver ? "checked" : ""}> Split checked and correct</label>
+          ${ver ? `<p class="note">Checked ${esc(String(ver.at || "").slice(0,10))}${ver.by && !/^u_/.test(ver.by) ? ` by ${esc(ver.by)}` : ""}${ver.note ? ` — ${esc(ver.note)}` : ""}</p>` : ""}
+        </div>
+        <div class="panel" style="margin-top:14px"><h2>Monthly fee</h2>
+          <p>${r.fee_status ? esc(r.fee_status) : "No fee status yet"}${r.fee_since ? ` since ${esc(r.fee_since)}` : ""}${r.fee_checked_at ? `<span class="meta"> · checked ${esc(String(r.fee_checked_at).slice(0,10))}</span>` : ""}</p>
+          <label for="f_fo">Fee override (e.g. waived — why)</label><input type="text" id="f_fo" value="${v(r.fee_override)}">
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:16px"><button class="btn" id="save">${isNew ? "Add agent" : "Save changes"}</button> <span id="smsg" class="msg"></span></p>
+    ${isNew ? "" : `<p class="note">CDA dropdown: ${r.in_cda_list ? "on the list" : "not on the list"}${r.synced_at ? `, last sent ${esc(new Date(r.synced_at).toLocaleString("en-US", { timeZone:TZ }))}` : ""}${r.sync_state === "waiting" ? " · update waiting" : ""}${r.sync_state === "error" ? ` · <b class="late">last send failed: ${esc(r.sync_error)}</b>` : ""}. Last change ${esc(new Date(r.updated_at).toLocaleString("en-US", { timeZone:TZ }))} by ${esc(r.updated_by)}.</p>`}
+    ${hist.length ? `<h2>Changes</h2><div class="box">${hist.map(h => `<div class="row" style="display:block"><b>${esc(new Date(h.at).toLocaleDateString("en-US", { timeZone:TZ }))}</b> · ${esc(h.by)}<div class="meta">${esc(Object.entries(h.changes).map(([k, c]) => k === "added" ? "added" : `${k}: ${fmtv(c.from)} → ${fmtv(c.to)}`).join("; "))}</div></div>`).join("")}</div>` : ""}`;
+
+  $("addlic").onclick = () => { const d = document.createElement("div"); d.innerHTML = licRow({ state:"", number:"", exp:"" }, $("lics").children.length); $("lics").appendChild(d.firstElementChild); };
+  $("save").onclick = async () => {
+    const m = $("smsg"); m.className = "msg"; m.textContent = "Saving…";
+    const num = x => x === "" ? null : Number(x);
+    const lic = [...app.querySelectorAll(".lic")].map(el => ({ state: el.querySelector(".ls").value, number: el.querySelector(".ln").value.trim(), exp: el.querySelector(".le").value }))
+      .filter(l => l.number);
+    const rec = {
+      first:$("f_first").value.trim(), last:$("f_last").value.trim(), email:$("f_email").value.trim(), phone:$("f_phone").value.trim(),
+      office:$("f_office").value, status:$("f_status").value, mls_id:$("f_mls").value.trim(), hire_date:$("f_hire").value || null,
+      brokersumo_id:$("f_bs").value.trim(), mailing:$("f_mail").value.trim(), not_in_brokersumo:$("f_nobs").checked, licenses:lic,
+      notes:$("f_notes").value, cda_split_pct:$("f_cs").value.trim(), cda_arf_pct:$("f_ca").value.trim(),
+      plan_name:$("f_plan").value.trim(), split_pct:num($("f_sp").value), net_pct:num($("f_np").value), pays_arf:$("f_arf").value,
+      split_note:$("f_sn").value.trim(), split_review:$("f_sr").value.trim(), fee_override:$("f_fo").value.trim(),
+    };
+    // Keep blank-vs-empty exactly as the CDA list had it when nobody touched the field
+    if (rec.cda_split_pct === "" && (r.cda_split_pct === null)) rec.cda_split_pct = null;
+    if (rec.cda_arf_pct === "" && (r.cda_arf_pct === null)) rec.cda_arf_pct = null;
+    if ($("f_ver").checked && !ver) rec.split_verified = { at:new Date().toISOString(), by:ME.full_name, note:"" };
+    if (!$("f_ver").checked && ver) rec.split_verified = null;
+    if (!rec.first || !rec.last) { m.className = "msg bad"; m.textContent = "First and last name are needed."; return; }
+    if (rec.status !== "inactive" && !/^\S+@\S+\.\S+$/.test(rec.email)) { m.className = "msg bad"; m.textContent = "A working email is needed."; return; }
+    if (rec.cda_split_pct && !/^\d+(\.\d+)?$/.test(rec.cda_split_pct)) { m.className = "msg bad"; m.textContent = "CDA split must be a number like 80 or 82.5."; return; }
+    let res;
+    if (isNew) {
+      const aid = $("f_id").value.trim();
+      if (!/^\d{7}$/.test(aid)) { m.className = "msg bad"; m.textContent = "Agent ID must be 7 digits."; return; }
+      res = await sb.from("roster").insert({ agent_id:aid, ...rec, source:`Added in CRM by ${ME.full_name}` });
+      if (!res.error) { location.hash = `#/admin/agents/${aid}`; return; }
+    } else {
+      res = await sb.from("roster").update(rec).eq("agent_id", r.agent_id);
+    }
+    if (res.error) { m.className = "msg bad"; m.textContent = res.error.message.includes("duplicate") ? "That agent ID is already on the roster." : `Couldn't save: ${res.error.message}`; return; }
+    showAgentEdit(r.agent_id);
   };
 }
+const fmtv = x => x === null || x === undefined || x === "" ? "blank" : (typeof x === "object" ? (Array.isArray(x) ? `${x.length} item(s)` : "set") : String(x));
 
 // ---------------- Router ----------------
 async function route() {
@@ -472,6 +636,9 @@ async function route() {
   if (h.startsWith("#/crm")) { const [, , list, term] = h.split("/"); return showCrm(list || "all", term ? decodeURIComponent(term) : ""); }
   if (h === "#/tasks") return showTasks();
   if (h === "#/pond") return showPond();
+  if (h.startsWith("#/admin/agents/")) return (ME.boss || ME.staff) ? showAgentEdit(decodeURIComponent(h.slice(15))) : showPriorities();
+  if (h.startsWith("#/admin/agents")) return (ME.boss || ME.staff) ? showAgents() : showPriorities();
+  if (ME.staff) return showAgents();
   if (h.startsWith("#/admin")) {
     if (!ME.boss) return showPriorities();
     return ({ "#/admin":showBroker, "#/admin/flow":showFlow, "#/admin/plans":showPlans, "#/admin/emails":showEmails, "#/admin/agents":showAgents }[h] || showBroker)();
@@ -482,7 +649,8 @@ async function route() {
 async function start(user) {
   const { data: me } = await sb.from("agents").select("id, full_name, role, office_id").eq("auth_user_id", user.id).maybeSingle();
   if (!me) { side.style.display = "none"; tilesEl.innerHTML = ""; app.innerHTML = `<p>You're signed in, but your email isn't on the agent roster yet. Email Tracy.</p>`; return; }
-  ME = { ...me, boss: me.role !== "agent" };
+  ME = { ...me, boss: me.role === "broker" || me.role === "admin", staff: me.role === "staff" };
+  if (ME.staff) $("search").style.display = "none";
   [PONDS, OFFICES] = await Promise.all([ sb.from("ponds").select("id, name").order("name").then(r => r.data || []),
                                          sb.from("offices").select("id, name").order("name").then(r => r.data || []) ]);
   window.onhashchange = route;
