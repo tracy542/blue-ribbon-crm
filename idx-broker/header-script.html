@@ -1,0 +1,59 @@
+<!--
+  Light CRM — IDX Broker page-header script
+  What it does: when a signed-in lead views, saves or asks to see a home on the
+  Blue Ribbon Homes IDX pages, it sends one small message to the bot
+  CRM-001 (Lead event intake, /api/idx-event). The bot saves it to Supabase; the database
+  decides if the lead is hot.
+  Where it goes: IDX Broker > Design > Website > Global Wrapper (or Sub-Header) > paste.
+-->
+<script>
+(function () {
+  var WEBHOOK_URL = "https://blue-ribbon-crm.vercel.app/api/idx-event";   // CRM-001 lead event intake
+
+  // IDX Broker puts the signed-in lead's info on the page when they're logged in
+  function lead() {
+    var l = window.idxLead || window.IDXLead || {};
+    return { email: l.email || null, first_name: l.firstName || null,
+             last_name: l.lastName || null, phone: l.phone || null, idx_lead_id: l.id || null };
+  }
+
+  // Pull the listing on screen (IDX detail pages carry these)
+  function listing() {
+    var mls = (document.querySelector("[data-idx-listingid], .IDX-field-listingID .IDX-text") || {});
+    var addr = document.querySelector(".IDX-detailsAddress, #IDX-detailsAddress");
+    var price = document.querySelector(".IDX-field-listingPrice .IDX-text");
+    return {
+      mls_number: (mls.dataset && mls.dataset.idxListingid) || (mls.textContent || "").trim() || null,
+      address: addr ? addr.textContent.replace(/\s+/g, " ").trim() : null,
+      price: price ? price.textContent.replace(/[^0-9]/g, "") : null
+    };
+  }
+
+  // Send one event; never blocks or breaks the page
+  function send(kind) {
+    var who = lead();
+    if (!who.email) return;                       // only track signed-in leads
+    var body = Object.assign({ kind: kind, source: "Blue Ribbon Homes",
+      page: location.href, at: new Date().toISOString(),
+      source_event_id: kind + ":" + who.email + ":" + location.pathname + ":" + Date.now() }, who, listing());
+    try {
+      navigator.sendBeacon
+        ? navigator.sendBeacon(WEBHOOK_URL, new Blob([JSON.stringify(body)], { type: "text/plain" }))
+        : fetch(WEBHOOK_URL, { method: "POST", body: JSON.stringify(body), keepalive: true,
+                               headers: { "Content-Type": "text/plain" } });
+    } catch (e) { /* tracking must never break the site */ }
+  }
+
+  // A listing detail page = a view
+  if (/\/idx\/details\//.test(location.pathname)) send("viewed");
+
+  // Save and showing-request buttons
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("a,button");
+    if (!t) return;
+    var txt = (t.textContent || "").toLowerCase();
+    if (/save( property|$)|favorite/.test(txt)) send("saved_home");
+    if (/schedule (a )?showing|request (a )?showing/.test(txt)) send("showing_request");
+  }, true);
+})();
+</script>
