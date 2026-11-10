@@ -1,0 +1,72 @@
+// Blue Ribbon CRM — IDX Broker tracker. Loaded by one line in IDX Broker > Sub-Headers > Global:
+// <script src="https://blue-ribbon-crm.vercel.app/tracker.js" defer></script>
+// Source of truth: idx-broker/header-script.html (same code).
+
+(function () {
+  var ENDPOINT = "https://blue-ribbon-crm.vercel.app/api/idx-event";
+
+  // The signed-in buyer, from IDX Broker's own getIDXUserData(); null when not signed in.
+  function buyer() {
+    var u = null;
+    try { u = typeof window.getIDXUserData === "function" ? window.getIDXUserData() : null; } catch (e) {}
+    if (!u || typeof u !== "object") return null;
+    // Field names vary; take the first value that looks like an email
+    var email = u.email || u.emailAddress || u.leadEmail || null;
+    if (!email) { for (var k in u) { if (typeof u[k] === "string" && /@.+\./.test(u[k])) { email = u[k]; break; } } }
+    if (!email) return null;
+    return {
+      email: email,
+      first_name: u.firstName || u.first_name || u.fname || null,
+      last_name: u.lastName || u.last_name || u.lname || null,
+      phone: u.phone || u.phoneNumber || null,
+      idx_lead_id: u.leadID || u.leadId || u.id || null
+    };
+  }
+
+  // The listing on screen. Detail URLs look like /idx/details/listing/b004/MDPG2214056/15114-Roving-Wood-Drive-...
+  function listing() {
+    var m = location.pathname.match(/\/idx\/details\/listing\/[^/]+\/([^/]+)\/?([^/?#]*)/);
+    var addrEl = document.querySelector("#IDX-detailsAddress");
+    var priceEl = document.querySelector(".IDX-field-listingPrice .IDX-text");
+    return {
+      mls_number: m ? decodeURIComponent(m[1]) : null,
+      address: addrEl ? addrEl.textContent.replace(/\s+/g, " ").trim() : (m && m[2] ? m[2].replace(/-/g, " ") : null),
+      price: priceEl ? priceEl.textContent.replace(/[^0-9]/g, "") : null
+    };
+  }
+
+  // Send one event (plain text so the browser doesn't block it)
+  function send(kind) {
+    var who = buyer();
+    if (!who) return;                                   // only signed-in buyers
+    var l = listing();
+    var body = {
+      kind: kind, source: "Blue Ribbon Homes", at: new Date().toISOString(),
+      source_event_id: [kind, who.email, l.mls_number || location.pathname, Date.now()].join(":")
+    };
+    for (var a in who) body[a] = who[a];
+    for (var b in l) body[b] = l[b];
+    try {
+      var data = JSON.stringify(body);
+      if (navigator.sendBeacon && navigator.sendBeacon(ENDPOINT, new Blob([data], { type: "text/plain" }))) return;
+      fetch(ENDPOINT, { method: "POST", body: data, keepalive: true, headers: { "Content-Type": "text/plain" } });
+    } catch (e) { /* never break the site */ }
+  }
+
+  function start() {
+    // Opening a listing detail page = one view
+    if (/\/idx\/details\/listing\//.test(location.pathname)) send("viewed");
+
+    // Save and showing/tour buttons on the detail page
+    document.addEventListener("click", function (e) {
+      if (!/\/idx\/details\/listing\//.test(location.pathname)) return;
+      var t = e.target && e.target.closest ? e.target.closest("a,button") : null;
+      if (!t) return;
+      var txt = (t.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
+      if (txt === "save" || /save (this )?(property|listing|home)|favorite/.test(txt)) send("saved_home");
+      else if (/schedule (a )?showing|request (a )?showing|^tour$|schedule (a )?tour/.test(txt)) send("showing_request");
+    }, true);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
