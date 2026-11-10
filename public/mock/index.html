@@ -209,7 +209,7 @@ const PEOPLE = [
 ];
 
 const DEALS = [
-  {a:"123 Main St, Martinsburg WV", side:"Buyer", st:"Under contract", close:"12/18/2026", price:"$289,000", pw:["bad","2 missing"], cda:["", "Not started"], pay:"—"},
+  {a:"123 Main St, Martinsburg WV", side:"Buyer", st:"Under contract", close:"12/18/2026", price:"$289,000", pw:["bad","2 missing"], cda:["", "Office starting (from Bright)"], pay:"—"},
   {a:"41 Ridge Rd, Hedgesville WV", side:"Listing", st:"Active", close:"—", price:"$345,000", pw:["ok","Clean"], cda:["", "—"], pay:"—"},
   {a:"9 Quince Ct, Falling Waters WV", side:"Buyer", st:"Pending", close:"11/24/2026", price:"$412,500", pw:["ok","Clean"], cda:["", "Waiting on broker"], pay:"$9,281 est."},
   {a:"300 King St #4, Martinsburg WV", side:"Listing", st:"Under contract", close:"12/05/2026", price:"$199,900", pw:["bad","NOA needs both agents"], cda:["ok","Approved"], pay:"$4,498 est."},
@@ -288,7 +288,8 @@ const VIEWS = {
     </div>`],
 
   "#/desk": () => ["My Commissions & Compliance Desk", `
-    <p><a class="btn" href="https://cda.ribbonway.com" target="_blank" rel="noopener">Start a CDA</a></p>
+    <p><a class="btn" href="https://cda.ribbonway.com" target="_blank" rel="noopener">Start a CDA (only if the deal is not in Bright)</a></p>
+    <p class="note" style="margin-top:-6px">The office starts the CDA for every deal that is in Bright. You only start one for a deal Bright doesn't have, like a rental or an off-MLS sale.</p>
     <div class="grid2" style="max-width:720px;margin-bottom:16px">
       <div class="stat"><b>$61,240</b>Paid to me in 2026 (11 closings)</div>
       <div class="stat"><b>$13,779</b>Coming — 2 deals under contract</div>
