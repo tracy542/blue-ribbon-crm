@@ -8,4 +8,4 @@ Agents' daily screen (My Desk) on a Supabase database Tracy owns. Website lead v
 - `idx-broker/header-script.html` — pasted into IDX Broker's page wrapper.
 - `supabase/` — database setup, in the order loaded.
 
-Hot lead = same home viewed 3 times in 7 days, or a home saved, or a showing requested (change in `flag_hot_lead`).
+Hot lead = came back to the same home on a separate visit (30+ min later) within 7 days, or saved a home, or asked for a showing (see supabase/004_hot_rule_came_back.sql).
