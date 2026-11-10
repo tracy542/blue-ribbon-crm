@@ -1,59 +1,78 @@
 <!--
-  Light CRM — IDX Broker page-header script
-  What it does: when a signed-in lead views, saves or asks to see a home on the
-  Blue Ribbon Homes IDX pages, it sends one small message to the bot
-  CRM-001 (Lead event intake, /api/idx-event). The bot saves it to Supabase; the database
-  decides if the lead is hot.
-  Where it goes: IDX Broker > Design > Website > Global Wrapper (or Sub-Header) > paste.
+  Blue Ribbon CRM — IDX Broker tracker (CRM-001 sender)
+  What it does: when a SIGNED-IN buyer views a listing, clicks Save, or asks for a
+  showing/tour on the Blue Ribbon Homes IDX pages, it sends one small message to
+  https://blue-ribbon-crm.vercel.app/api/idx-event. The database decides if the lead is hot.
+  Anonymous visitors send nothing. Tracking can never break the page.
+  Where it goes: IDX Broker > Design > Website > Global Wrapper > Sub-header (end).
 -->
 <script>
 (function () {
-  var WEBHOOK_URL = "https://blue-ribbon-crm.vercel.app/api/idx-event";   // CRM-001 lead event intake
+  var ENDPOINT = "https://blue-ribbon-crm.vercel.app/api/idx-event";
 
-  // IDX Broker puts the signed-in lead's info on the page when they're logged in
-  function lead() {
-    var l = window.idxLead || window.IDXLead || {};
-    return { email: l.email || null, first_name: l.firstName || null,
-             last_name: l.lastName || null, phone: l.phone || null, idx_lead_id: l.id || null };
-  }
-
-  // Pull the listing on screen (IDX detail pages carry these)
-  function listing() {
-    var mls = (document.querySelector("[data-idx-listingid], .IDX-field-listingID .IDX-text") || {});
-    var addr = document.querySelector(".IDX-detailsAddress, #IDX-detailsAddress");
-    var price = document.querySelector(".IDX-field-listingPrice .IDX-text");
+  // The signed-in buyer, from IDX Broker's own getIDXUserData(); null when not signed in.
+  function buyer() {
+    var u = null;
+    try { u = typeof window.getIDXUserData === "function" ? window.getIDXUserData() : null; } catch (e) {}
+    if (!u || typeof u !== "object") return null;
+    // Field names vary; take the first value that looks like an email
+    var email = u.email || u.emailAddress || u.leadEmail || null;
+    if (!email) { for (var k in u) { if (typeof u[k] === "string" && /@.+\./.test(u[k])) { email = u[k]; break; } } }
+    if (!email) return null;
     return {
-      mls_number: (mls.dataset && mls.dataset.idxListingid) || (mls.textContent || "").trim() || null,
-      address: addr ? addr.textContent.replace(/\s+/g, " ").trim() : null,
-      price: price ? price.textContent.replace(/[^0-9]/g, "") : null
+      email: email,
+      first_name: u.firstName || u.first_name || u.fname || null,
+      last_name: u.lastName || u.last_name || u.lname || null,
+      phone: u.phone || u.phoneNumber || null,
+      idx_lead_id: u.leadID || u.leadId || u.id || null
     };
   }
 
-  // Send one event; never blocks or breaks the page
-  function send(kind) {
-    var who = lead();
-    if (!who.email) return;                       // only track signed-in leads
-    var body = Object.assign({ kind: kind, source: "Blue Ribbon Homes",
-      page: location.href, at: new Date().toISOString(),
-      source_event_id: kind + ":" + who.email + ":" + location.pathname + ":" + Date.now() }, who, listing());
-    try {
-      navigator.sendBeacon
-        ? navigator.sendBeacon(WEBHOOK_URL, new Blob([JSON.stringify(body)], { type: "text/plain" }))
-        : fetch(WEBHOOK_URL, { method: "POST", body: JSON.stringify(body), keepalive: true,
-                               headers: { "Content-Type": "text/plain" } });
-    } catch (e) { /* tracking must never break the site */ }
+  // The listing on screen. Detail URLs look like /idx/details/listing/b004/MDPG2214056/15114-Roving-Wood-Drive-...
+  function listing() {
+    var m = location.pathname.match(/\/idx\/details\/listing\/[^/]+\/([^/]+)\/?([^/?#]*)/);
+    var addrEl = document.querySelector("#IDX-detailsAddress");
+    var priceEl = document.querySelector(".IDX-field-listingPrice .IDX-text");
+    return {
+      mls_number: m ? decodeURIComponent(m[1]) : null,
+      address: addrEl ? addrEl.textContent.replace(/\s+/g, " ").trim() : (m && m[2] ? m[2].replace(/-/g, " ") : null),
+      price: priceEl ? priceEl.textContent.replace(/[^0-9]/g, "") : null
+    };
   }
 
-  // A listing detail page = a view
-  if (/\/idx\/details\//.test(location.pathname)) send("viewed");
+  // Send one event (plain text so the browser doesn't block it)
+  function send(kind) {
+    var who = buyer();
+    if (!who) return;                                   // only signed-in buyers
+    var l = listing();
+    var body = {
+      kind: kind, source: "Blue Ribbon Homes", at: new Date().toISOString(),
+      source_event_id: [kind, who.email, l.mls_number || location.pathname, Date.now()].join(":")
+    };
+    for (var a in who) body[a] = who[a];
+    for (var b in l) body[b] = l[b];
+    try {
+      var data = JSON.stringify(body);
+      if (navigator.sendBeacon && navigator.sendBeacon(ENDPOINT, new Blob([data], { type: "text/plain" }))) return;
+      fetch(ENDPOINT, { method: "POST", body: data, keepalive: true, headers: { "Content-Type": "text/plain" } });
+    } catch (e) { /* never break the site */ }
+  }
 
-  // Save and showing-request buttons
-  document.addEventListener("click", function (e) {
-    var t = e.target.closest("a,button");
-    if (!t) return;
-    var txt = (t.textContent || "").toLowerCase();
-    if (/save( property|$)|favorite/.test(txt)) send("saved_home");
-    if (/schedule (a )?showing|request (a )?showing/.test(txt)) send("showing_request");
-  }, true);
+  function start() {
+    // Opening a listing detail page = one view
+    if (/\/idx\/details\/listing\//.test(location.pathname)) send("viewed");
+
+    // Save and showing/tour buttons on the detail page
+    document.addEventListener("click", function (e) {
+      if (!/\/idx\/details\/listing\//.test(location.pathname)) return;
+      var t = e.target && e.target.closest ? e.target.closest("a,button") : null;
+      if (!t) return;
+      var txt = (t.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
+      if (txt === "save" || /save (this )?(property|listing|home)|favorite/.test(txt)) send("saved_home");
+      else if (/schedule (a )?showing|request (a )?showing|^tour$|schedule (a )?tour/.test(txt)) send("showing_request");
+    }, true);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
 </script>
