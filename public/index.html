@@ -138,7 +138,7 @@
     .tr .c-stage, .tr .c-src { display:none }
     .tr.rr { grid-template-columns:1fr } .grid2, .grid3 { grid-template-columns:1fr }
     .uc { padding:12px 16px; font-size:17px }
-    .pipe { grid-template-columns:repeat(4, minmax(0,1fr)) } .pipe a { border-bottom:1px solid #EEF0F3 }
+    .pipe { grid-template-columns:repeat(4, minmax(0,1fr)) } .pipe a { border-bottom:1px solid #EEF0F3; padding:10px 8px } .pipe span { font-size:13px; overflow-wrap:anywhere }
     .score { grid-template-columns:repeat(2, minmax(0,1fr)) }
     .crmgrid { grid-template-columns:1fr } .crmgrid .filters { order:2 }
     .tr.d7, .tr.d5 { grid-template-columns:1fr } .mtiles { grid-template-columns:1fr }
@@ -556,7 +556,7 @@ async function showDeskSettings() {
     <label for="bm">Message at the top of every agent's Today page</label><textarea id="bm">${esc(SET.broker_message)}</textarea>
     <h2>Where each item opens</h2>
     <p class="note">Leave a box blank to use our own page. Paste a link (for example a Sierra, GoHighLevel or marketing site page) to send agents there instead.</p>
-    ${slots.map(([k, label, def]) => `<label for="l_${k}">${esc(label)}</label><input type="text" id="l_${k}" value="${esc(SET.links[k] || "")}" placeholder="${esc(def ? "Default: " + def : "Blank = coming soon")}">`).join("")}
+    ${slots.map(([k, label, def]) => `<label for="l_${k}">${esc(label)}</label><input type="text" id="l_${k}" value="${esc(SET.links[k] || "")}" placeholder="${esc(!def ? "Blank = coming soon" : def.startsWith("#") ? "Blank = our own page" : "Blank = " + def)}">`).join("")}
     <p><button class="btn" id="dsave">Save</button></p><p id="dmsg" class="msg"></p></div>`;
   $("dsave").onclick = async () => {
     const links = {}; slots.forEach(([k]) => { const v = $("l_" + k).value.trim(); if (v) links[k] = v; });
