@@ -117,3 +117,8 @@ select c.id, 20, 'Blue Ribbon Homes website, everywhere else → Jonathan, Gavin
        (select id from action_plans where name = 'New buyer lead, 30 days')
 from companies c where c.name = 'Blue Ribbon Realty'
   and not exists (select 1 from lead_flow_rules where priority = 20);
+
+-- 11/10/2026: Tracy says Regina Parker has a DC license (roster only shows MD — confirm and add it there) → DC leads go to Regina
+update lead_flow_rules set to_agent_id = (select id from agents where agent_number = '2373093'),
+  label = 'Blue Ribbon Homes website, DC ZIP → Regina Parker, start "New buyer lead, 30 days"'
+where priority = 5;
