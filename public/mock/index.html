@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Blue Ribbon — Mockup</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+
+  :root { --navy:#1F3A68; --navy2:#142847; --ink:#1A1D23; --muted:#5B616B; --line:#E1E4E9; --bg:#F4F5F7; --hot:#8A3B00; --hotbg:#FFE9D6; --late:#A3290F; --latebg:#FDE8E4; --ok:#1E6B3A; --side:#14213A; }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.45 Inter, system-ui, sans-serif; text-align:left }
+  a { color:var(--navy) }
+
+  /* ---------- App shell: left menu + top bar + main panel ---------- */
+  .shell { display:flex; min-height:100vh }
+  .side { width:250px; flex:none; background:var(--side); color:#fff; display:flex; flex-direction:column; padding:18px 0 }
+  .brand { padding:0 20px 18px; font-size:20px; font-weight:700; border-bottom:1px solid rgba(255,255,255,.12); margin-bottom:10px }
+  .brand small { display:block; font-size:14px; font-weight:400; opacity:.75 }
+  .navgroup { padding:10px 20px 4px; font-size:13px; letter-spacing:.06em; text-transform:uppercase; opacity:.6 }
+  .nav a { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 20px; min-height:48px; color:#fff; text-decoration:none; font-size:17px; border-left:4px solid transparent }
+  .nav a:hover { background:rgba(255,255,255,.07) }
+  .nav a.on { background:rgba(255,255,255,.12); border-left-color:#7FA8E8; font-weight:600 }
+  .nav .count { font-size:14px; background:rgba(255,255,255,.18); border-radius:10px; padding:1px 9px }
+  .side .foot { margin-top:auto; padding:16px 20px 0; font-size:15px; opacity:.8 }
+  .side .foot a { color:#fff }
+  .mainwrap { flex:1; min-width:0; display:flex; flex-direction:column }
+  .topbar { display:flex; align-items:center; gap:14px; background:#fff; border-bottom:1px solid var(--line); padding:12px 24px; flex-wrap:wrap }
+  .topbar h1 { margin:0; font-size:24px; flex:1; min-width:160px }
+  .topbar .search { flex:0 1 320px; min-width:180px }
+  .menubtn { display:none; min-height:44px; padding:0 14px; border:1px solid #C9CED6; background:#fff; border-radius:10px; font:600 16px Inter, system-ui, sans-serif; cursor:pointer }
+  .who { color:var(--muted); font-size:15px; white-space:nowrap }
+  .tiles { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:14px; padding:18px 24px 0 }
+  .tile { display:block; background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px; color:inherit; text-decoration:none; border-top:5px solid var(--navy) }
+  .tile b { display:block; font-size:32px; line-height:1.1 }
+  .tile span { color:var(--muted); font-size:15px }
+  .tile.hot { border-top-color:#C25B12 } .tile.late { border-top-color:var(--late) } .tile.need { border-top-color:#2E6FD8 }
+  .tile.on { outline:2px solid var(--navy) }
+  main { padding:18px 24px 48px; max-width:1200px }
+
+  /* ---------- Content pieces ---------- */
+  h2 { font-size:20px; margin:22px 0 10px }
+  h2:first-child { margin-top:4px }
+  .cols { display:grid; grid-template-columns:minmax(0,3fr) minmax(0,2fr); gap:20px; align-items:start }
+  .panel { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px }
+  .panel > h2 { margin-top:0 }
+  .card { display:block; background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; color:inherit; text-decoration:none }
+  .panel .card { border-color:#ECEEF2 }
+  .name { font-size:19px; font-weight:700; display:flex; justify-content:space-between; gap:8px; align-items:center }
+  .tag { font-size:13px; font-weight:700; color:var(--hot); background:var(--hotbg); padding:3px 9px; border-radius:12px; white-space:nowrap }
+  .tag.pond { color:var(--navy); background:#E3EAF5 } .tag.need { color:#1D4FA0; background:#E1ECFC }
+  .why { color:#3A3F48; margin-top:3px } .meta { color:var(--muted); font-size:15px; margin-top:3px }
+  .hotbar { color:var(--hot); background:var(--hotbg); padding:10px 12px; border-radius:10px; margin-top:8px }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 14px }
+  .chip { padding:9px 14px; border-radius:22px; background:#fff; border:1px solid #C9CED6; color:var(--ink); font-size:16px; text-decoration:none; min-height:44px; display:inline-flex; align-items:center }
+  .chip.on { border:2px solid var(--navy); color:var(--navy); font-weight:600 }
+  /* lead table: columns on a computer, stacked on a phone */
+  .tbl { background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden }
+  .tr { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,.8fr) minmax(0,2.2fr) minmax(0,1fr) minmax(0,1fr); gap:12px; padding:13px 16px; border-bottom:1px solid #EEF0F3; color:inherit; text-decoration:none; align-items:center }
+  .tr:last-child { border-bottom:0 }
+  a.tr:hover { background:#F7F9FC }
+  .th { font-size:14px; font-weight:700; color:var(--muted); background:#FAFBFC; text-transform:uppercase; letter-spacing:.04em }
+  .tr .nm { font-weight:700 }
+  .row { display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid #EEF0F3 }
+  .row:last-child { border-bottom:0 }
+  .box { background:#fff; border:1px solid var(--line); border-radius:12px }
+  .row input[type=checkbox] { width:24px; height:24px; flex:none }
+  .late { color:var(--late) }
+  .btn { display:inline-flex; align-items:center; justify-content:center; min-height:50px; padding:0 18px; border-radius:12px; border:0; background:var(--navy); color:#fff; font:600 17px Inter, system-ui, sans-serif; cursor:pointer; text-decoration:none }
+  .btn.ghost { background:#fff; color:var(--navy); border:2px solid var(--navy) }
+  .btn.small { min-height:44px; font-size:16px; padding:0 14px }
+  .btns { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin:14px 0; max-width:520px }
+  label { display:block; font-weight:600; margin:12px 0 4px }
+  input[type=text], input[type=email], input[type=date], input[type=number], input[type=search], select, textarea { width:100%; min-height:46px; font:17px Inter, system-ui, sans-serif; padding:10px 12px; border:1px solid #C9CED6; border-radius:10px; background:#fff }
+  textarea { min-height:110px }
+  .empty { color:var(--muted) }
+  .stat { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px }
+  .stat b { display:block; font-size:30px }
+  .grid2 { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px }
+  .msg { margin-top:10px; font-weight:600 } .msg.bad { color:var(--late) } .msg.good { color:var(--ok) }
+  .note { color:var(--muted); font-size:15px }
+  pre.mail { white-space:pre-wrap; font:16px/1.5 Inter, system-ui, sans-serif; background:#FAFBFC; border:1px solid var(--line); border-radius:12px; padding:14px; margin:6px 0 0 }
+  .back { display:inline-block; font-size:16px; margin-bottom:6px }
+  .narrow { max-width:720px }
+  .tr.rr { grid-template-columns:minmax(0,2fr) minmax(0,.9fr) minmax(0,1.1fr) minmax(0,1.2fr) minmax(0,1.6fr) }
+  .grid3 { display:grid; grid-template-columns:minmax(0,.7fr) minmax(0,1.6fr) minmax(0,1.2fr); gap:10px }
+  label.ck { display:flex; align-items:center; gap:10px; font-weight:600; margin:14px 0 4px; min-height:44px }
+  label.ck input { width:24px; height:24px; flex:none }
+
+  /* ---------- Phone: menu slides in, tiles 2x2, table stacks ---------- */
+  @media (max-width: 860px) {
+    .side { position:fixed; inset:0 auto 0 0; z-index:20; transform:translateX(-100%); transition:transform .2s; box-shadow:4px 0 20px rgba(0,0,0,.25) }
+    .side.open { transform:none }
+    .menubtn { display:inline-flex; align-items:center }
+    .topbar { padding:10px 16px } .topbar h1 { font-size:22px } .topbar .search { flex:1 1 100% }
+    .who { display:none }
+    .tiles { grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; padding:14px 16px 0 }
+    .tile b { font-size:28px }
+    main { padding:14px 16px 48px }
+    .cols { grid-template-columns:1fr }
+    .tr { grid-template-columns:1fr; gap:2px } .th { display:none }
+    .tr .c-stage, .tr .c-src { display:none }
+    .tr.rr { grid-template-columns:1fr } .grid2, .grid3 { grid-template-columns:1fr }
+  }
+
+  /* ---------- Mockup extras ---------- */
+  .mockbar { background:#FFF4C2; color:#5A4500; padding:10px 24px; font-size:15px; border-bottom:1px solid #EAD98A }
+  .switch { display:grid; grid-template-columns:1fr 1fr; margin:0 14px 12px; background:rgba(255,255,255,.08); border-radius:12px; padding:4px }
+  .switch a { text-align:center; padding:10px 6px; border-radius:9px; color:#fff; text-decoration:none; font-size:15px; font-weight:600; opacity:.75 }
+  .switch a.on { background:#fff; color:var(--side); opacity:1 }
+  .brokerbar { background:#E8EEF8; border:1px solid #C9D6EC; border-radius:12px; padding:12px 16px; margin-bottom:14px; display:flex; gap:12px; align-items:flex-start }
+  .brokerbar b { white-space:nowrap }
+  .pipe { display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:16px }
+  .pipe a { padding:12px 10px; text-decoration:none; color:inherit; border-right:1px solid #EEF0F3 }
+  .pipe a:last-child { border-right:0 }
+  .pipe b { display:block; font-size:28px; line-height:1.1 }
+  .pipe span { color:var(--muted); font-size:14px }
+  .pipe a.hot b { color:#C25B12 }
+  .score { display:grid; grid-template-columns:minmax(0,1.1fr) repeat(5, minmax(0,1fr)); gap:10px; margin-bottom:16px }
+  .score .s { background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 14px; text-decoration:none; color:inherit }
+  .score .s b { display:block; font-size:28px; line-height:1.1 } .score .s span { color:var(--muted); font-size:14px }
+  .score .big b { font-size:40px; color:var(--late) }
+  .score .warn b { color:var(--late) }
+  .crmgrid { display:grid; grid-template-columns:240px minmax(0,1fr); gap:16px; align-items:start }
+  .filters { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px }
+  .filters h3 { font-size:14px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:14px 0 6px }
+  .filters h3:first-child { margin-top:0 }
+  .filters a { display:block; padding:7px 0; text-decoration:none; color:var(--ink) }
+  .tr.c5 { grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.6fr) minmax(0,1fr) minmax(0,.9fr) }
+  .tr.d7 { grid-template-columns:minmax(0,1.8fr) minmax(0,.8fr) minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.2fr) minmax(0,1.1fr) minmax(0,.9fr) }
+  .pill { display:inline-block; font-size:13px; font-weight:700; padding:3px 9px; border-radius:12px; background:#E3EAF5; color:var(--navy); white-space:nowrap }
+  .pill.ok { background:#DFF3E6; color:var(--ok) } .pill.bad { background:var(--latebg); color:var(--late) } .pill.hot { background:var(--hotbg); color:var(--hot) }
+  .stages { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 16px }
+  .stages a { padding:10px 14px; border:1px solid #C9CED6; border-radius:10px; text-decoration:none; color:var(--ink); background:#fff; min-height:44px }
+  .stages a.on { background:var(--navy); color:#fff; border-color:var(--navy); font-weight:600 }
+  .mtiles { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px }
+  .mtile { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:6px }
+  .mtile h3 { margin:0; font-size:19px } .mtile p { margin:0; color:#3A3F48 }
+  .mtile .btn { margin-top:auto; align-self:flex-start }
+  .mtile.soon { opacity:.6 } .mtile.soon .btn { background:#9AA3AF }
+  .sechead { font-size:15px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:22px 0 10px }
+  .modal { position:fixed; inset:0; background:rgba(10,16,30,.55); display:none; align-items:flex-start; justify-content:center; padding:40px 16px; z-index:50 }
+  .modal.open { display:flex }
+  .modal .panel { width:min(560px,100%) }
+  @media (max-width: 860px) {
+    .pipe { grid-template-columns:repeat(4, minmax(0,1fr)) } .pipe a { border-bottom:1px solid #EEF0F3 }
+    .score { grid-template-columns:repeat(2, minmax(0,1fr)) }
+    .crmgrid { grid-template-columns:1fr } .crmgrid .filters { order:2 }
+    .tr.c5, .tr.d7 { grid-template-columns:1fr }
+    .mtiles { grid-template-columns:1fr }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side" id="side" aria-label="Menu">
+    <div class="brand">My Blue Ribbon<small>Blue Ribbon Real Estate</small></div>
+    <div class="switch" role="tablist">
+      <a href="#/today" id="sw-me" role="tab">My Blue Ribbon</a>
+      <a href="#/b/roster" id="sw-b" role="tab">Brokerage</a>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="foot">Signed in as Jonathan Fleming (sample)<br><a href="#">Sign out</a></div>
+  </aside>
+  <div class="mainwrap">
+    <div class="mockbar"><b>Mockup</b> — sample people and numbers, nothing here is real or saved. Click around.</div>
+    <div class="topbar">
+      <button class="menubtn" id="menubtn" aria-label="Open menu">☰ Menu</button>
+      <h1 id="title">Today</h1>
+      <input type="search" class="search" placeholder="Search people, addresses, MLS #" aria-label="Search">
+    </div>
+    <main id="app"></main>
+  </div>
+</div>
+<div class="modal" id="uc" role="dialog" aria-modal="true" aria-labelledby="ucT">
+  <div class="panel">
+    <h2 id="ucT">Under contract — Jane Smith</h2>
+    <p class="note">Three boxes. The rest (MLS #, side, paperwork) fills in from Bright, zipForm and dotloop overnight.</p>
+    <label for="u1">Property address</label><input type="text" id="u1" value="123 Main St, Martinsburg, WV 25401">
+    <label for="u2">Contract price</label><input type="text" id="u2" value="$289,000">
+    <label for="u3">Closing date</label><input type="date" id="u3" value="2026-12-18">
+    <p style="margin-top:16px"><a class="btn" href="#/desk" onclick="document.getElementById('uc').classList.remove('open')">Save — add to my Desk</a> <a class="btn ghost" href="#/lead" onclick="document.getElementById('uc').classList.remove('open')">Cancel</a></p>
+  </div>
+</div>
+<script>
+// ============================================================
+// My Blue Ribbon — clickable mockup. Sample data only; nothing is saved.
+// ============================================================
+const $ = id => document.getElementById(id);
+const app = $("app");
+
+// Left menu for each side of the switch
+const ME = [
+  ["#/today","Today",""], ["#/crm","My CRM","12"], ["#/desk","My Commissions & Compliance Desk","4"],
+  ["#/closed","My Closed Properties",""], ["#/marketing","My Marketing (Listings & Farming)",""], ["#/tasks","My Tasks","5"],
+  ["https://tools.ribbonway.com/home","Tools ↗",""]
+];
+const BROKER = [
+  ["#/b/roster","Agent roster",""], ["#/b/routing","Lead routing",""], ["#/b/ponds","Ponds","3"],
+  ["#/b/plans","Follow-up plans",""], ["#/b/compliance","Compliance","7"], ["#/b/emails","Held emails","2"]
+];
+
+// Sample people
+const PEOPLE = [
+  {n:"Jane Smith", st:"Lead", why:"Came back to 123 Main St, Martinsburg — 2nd visit today", hot:true, last:"Never", src:"blueribbon.homes"},
+  {n:"Marcus Bell", st:"Lead", why:"Saved 88 Orchard Ln, Inwood ($315,000)", hot:true, last:"Never", src:"blueribbon.homes"},
+  {n:"Tonya Reyes", st:"Contacted", why:"Follow-up call due today", last:"2 days ago", src:"blueribbon.homes"},
+  {n:"Dale & Kim Porter", st:"Appointment", why:"Showing Sat 10:00 — 41 Ridge Rd", last:"Yesterday", src:"Office call"},
+  {n:"Ana Morales", st:"Lead", why:"New — looked at 7 homes in Charles Town", last:"Never", src:"blueribbon.homes"},
+  {n:"Greg Lowe", st:"Nurture", why:"Buying in spring — check in Dec 1", last:"3 weeks ago", src:"Sphere"},
+];
+
+const DEALS = [
+  {a:"123 Main St, Martinsburg WV", side:"Buyer", st:"Under contract", close:"12/18/2026", price:"$289,000", pw:["bad","2 missing"], cda:["", "Not started"], pay:"—"},
+  {a:"41 Ridge Rd, Hedgesville WV", side:"Listing", st:"Active", close:"—", price:"$345,000", pw:["ok","Clean"], cda:["", "—"], pay:"—"},
+  {a:"9 Quince Ct, Falling Waters WV", side:"Buyer", st:"Pending", close:"11/24/2026", price:"$412,500", pw:["ok","Clean"], cda:["", "Waiting on broker"], pay:"$9,281 est."},
+  {a:"300 King St #4, Martinsburg WV", side:"Listing", st:"Under contract", close:"12/05/2026", price:"$199,900", pw:["bad","NOA needs both agents"], cda:["ok","Approved"], pay:"$4,498 est."},
+];
+
+function nav(active) {
+  const broker = location.hash.startsWith("#/b/");
+  $("sw-me").classList.toggle("on", !broker); $("sw-b").classList.toggle("on", broker);
+  $("nav").innerHTML = (broker ? BROKER : ME).map(([h,l,c]) =>
+    `<a href="${h}" ${h.startsWith("http") ? 'target="_blank" rel="noopener"' : ""} class="${h===active?"on":""}">${l}${c?`<span class="count">${c}</span>`:""}</a>`).join("");
+}
+
+const brokerBar = `<div class="brokerbar"><b>From Tracy:</b><span>Only mark someone a Client after the buyer agency or listing agreement is signed. New office leads must be contacted within 48 hours or they go back to the pond.</span></div>`;
+const pipeline = `<div class="pipe">
+  <a class="hot" href="#/crm"><b>2</b><span>Hot</span></a><a href="#/crm"><b>3</b><span>Lead</span></a>
+  <a href="#/crm"><b>4</b><span>Contacted</span></a><a href="#/crm"><b>1</b><span>Appointment</span></a>
+  <a href="#/crm"><b>1</b><span>Showing</span></a><a href="#/desk"><b>2</b><span>Under contract</span></a>
+  <a href="#/closed"><b>11</b><span>Closed (2026)</span></a></div>`;
+
+const personCard = p => `<a class="card" href="#/lead"><div class="name">${p.n}${p.hot?'<span class="tag">Hot</span>':`<span class="tag need">${p.st}</span>`}</div><div class="why">${p.why}</div><div class="meta">Last contact: ${p.last}</div></a>`;
+
+const VIEWS = {
+  "#/today": () => ["Today", `${brokerBar}${pipeline}
+    <div class="cols">
+      <div><h2>My deals</h2><div class="tbl">
+        <div class="tr th c5"><span>Property</span><span>Status</span><span>Paperwork</span><span>Closing</span><span>CDA</span></div>
+        ${DEALS.map(d=>`<a class="tr c5" href="#/desk"><span class="nm">${d.a}</span><span>${d.st}</span><span><span class="pill ${d.pw[0]}">${d.pw[1]}</span></span><span>${d.close}</span><span>${d.cda[1]}</span></a>`).join("")}
+      </div></div>
+      <div class="panel"><h2>Contact today</h2>${PEOPLE.slice(0,4).map(personCard).join("")}<a href="#/crm">See everyone →</a></div>
+    </div>`],
+
+  "#/crm": () => ["My CRM", `
+    <div class="score">
+      <a class="s big" href="#/crm"><b>62%</b><span>Follow-up score · last 30 days</span></a>
+      <a class="s warn" href="#/crm"><b>3</b><span>New & needs contact</span></a>
+      <a class="s warn" href="#/crm"><b>2</b><span>Hot & needs contact</span></a>
+      <a class="s warn" href="#/tasks"><b>5</b><span>Past-due tasks</span></a>
+      <a class="s" href="#/crm"><b>1</b><span>Not on a follow-up plan</span></a>
+      <a class="s" href="#/desk"><b>2</b><span>Closing in 30 days</span></a>
+    </div>
+    <div class="crmgrid">
+      <div class="filters">
+        <h3>Saved views</h3><a href="#/crm">All my people</a><a href="#/crm">New this week</a><a href="#/crm">Hot</a>
+        <h3>Ponds</h3><a href="#/b/ponds">Martinsburg office leads (2)</a>
+        <h3>Stage</h3><a href="#/crm">Lead</a><a href="#/crm">Contacted</a><a href="#/crm">Appointment</a><a href="#/crm">Showing</a><a href="#/crm">Under contract</a><a href="#/crm">Closed</a><a href="#/crm">Nurture</a><a href="#/crm">Dead</a>
+        <h3>Type</h3><a href="#/crm">Buyer</a><a href="#/crm">Seller</a><a href="#/crm">Renter</a>
+      </div>
+      <div class="tbl">
+        <div class="tr th c5"><span>Name</span><span>Stage</span><span>Latest</span><span>Last contact</span><span>Source</span></div>
+        ${PEOPLE.map(p=>`<a class="tr c5" href="#/lead"><span class="nm">${p.n} ${p.hot?'<span class="pill hot">Hot</span>':""}</span><span>${p.st}</span><span>${p.why}</span><span>${p.last}</span><span>${p.src}</span></a>`).join("")}
+      </div>
+    </div>`],
+
+  "#/lead": () => ["Jane Smith", `<a class="back" href="#/crm">← My CRM</a>
+    <div class="hotbar"><b>Hot:</b> came back to 123 Main St, Martinsburg — 2nd visit today (first looked Sun Nov 8)</div>
+    <div class="stages" aria-label="Stage">
+      <a class="on" href="#/lead">Lead</a><a href="#/lead">Contacted</a><a href="#/lead">Appointment</a><a href="#/lead">Showing</a>
+      <a href="#/lead" onclick="document.getElementById('uc').classList.add('open');return false">Under contract</a><a href="#/lead">Closed</a><a href="#/lead">Nurture</a><a href="#/lead">Dead</a>
+    </div>
+    <div class="cols">
+      <div>
+        <div class="panel"><h2>Log what happened</h2>
+          <div class="btns"><a class="btn small" href="#/lead">Called</a><a class="btn small" href="#/lead">Emailed</a><a class="btn small ghost" href="#/lead">No answer</a></div>
+          <label for="n">Note</label><textarea id="n" placeholder="What did they say?"></textarea>
+          <p><a class="btn" href="#/lead">Save</a></p></div>
+        <h2>Homes looked at</h2><div class="box">
+          <div class="row"><span><b>123 Main St, Martinsburg</b> — $289,000<div class="meta">Viewed 3 times · today 2:14 PM</div></span></div>
+          <div class="row"><span><b>88 Orchard Ln, Inwood</b> — $315,000<div class="meta">Viewed once · Nov 8</div></span></div></div>
+      </div>
+      <div class="panel"><h2>Jane Smith</h2>
+        <div class="meta">jane@email.com · 304-555-0101</div>
+        <div class="meta">Source: blueribbon.homes · Assigned to you Nov 10 (taking turns)</div>
+        <div class="meta">Follow-up plan: New buyer lead, 30 days — step 1 of 6</div>
+        <h2>Next tasks</h2><div class="box"><div class="row"><input type="checkbox" aria-label="done"> Call Jane — new website lead <span class="late">today</span></div><div class="row"><input type="checkbox" aria-label="done"> Follow up — any homes to see? <span class="meta">Nov 13</span></div></div>
+      </div>
+    </div>`],
+
+  "#/desk": () => ["My Commissions & Compliance Desk", `
+    <p><a class="btn" href="https://cda.ribbonway.com" target="_blank" rel="noopener">Start a CDA</a></p>
+    <div class="grid2" style="max-width:720px;margin-bottom:16px">
+      <div class="stat"><b>$61,240</b>Paid to me in 2026 (11 closings)</div>
+      <div class="stat"><b>$13,779</b>Coming — 2 deals under contract</div>
+    </div>
+    <h2>Every deal, listing to closed</h2>
+    <div class="tbl">
+      <div class="tr th d7"><span>Property</span><span>Side</span><span>Status</span><span>Closing</span><span>Paperwork</span><span>CDA</span><span>My payout</span></div>
+      ${DEALS.map(d=>`<a class="tr d7" href="#/desk"><span class="nm">${d.a}</span><span>${d.side}</span><span>${d.st}</span><span>${d.close}</span><span><span class="pill ${d.pw[0]}">${d.pw[1]}</span></span><span>${d.cda[1]==="—"?"—":`<span class="pill ${d.cda[0]}">${d.cda[1]}</span>`}</span><span>${d.pay}</span></a>`).join("")}
+    </div>
+    <p class="note">Paperwork comes from the nightly compliance check (zipForm / dotloop WAFFL folder). Click a row to see what's missing and to Talk to KJ about the deal.</p>`],
+
+  "#/closed": () => ["My Closed Properties", `
+    <div class="tbl"><div class="tr th c5"><span>Property</span><span>Side</span><span>Closed</span><span>Price</span><span>My payout</span></div>
+    ${[["18 Elm St, Martinsburg WV","Buyer","10/30/2026","$262,000","$6,026"],["2 Hollow Rd, Inwood WV","Listing","10/12/2026","$389,900","$8,968"],["77 Fox Run, Charles Town WV","Buyer","09/19/2026","$455,000","$10,465"]]
+      .map(r=>`<div class="tr c5"><span class="nm">${r[0]}</span><span>${r[1]}</span><span>${r[2]}</span><span>${r[3]}</span><span>${r[4]}</span></div>`).join("")}</div>
+    <p class="note">Each closed deal starts the "Closed" keep-in-touch emails to the client (held until Tracy approves the wording).</p>`],
+
+  "#/marketing": () => ["My Marketing (Listings & Farming)", `
+    <div class="sechead">Listings</div><div class="mtiles">
+      <div class="mtile"><h3>Listing Marketing</h3><p>Branded listing PDF (Client 360) and a social post, started from a deal on your Desk.</p><a class="btn small" href="#/marketing">Open</a></div>
+      <div class="mtile"><h3>Social</h3><p>Post a listing, just sold or update through the Ribbon Post Desk.</p><a class="btn small" href="#/marketing">Open</a></div>
+      <div class="mtile"><h3>Search Alerts</h3><p>New listings emailed to your buyers from blueribbon.homes.</p><a class="btn small" href="#/marketing">Open</a></div>
+    </div>
+    <div class="sechead">Farming</div><div class="mtiles">
+      <div class="mtile"><h3>Follow-up Plans</h3><p>Drip emails and tasks that run on their own (like Smart Campaigns).</p><a class="btn small" href="#/marketing">Open</a></div>
+      <div class="mtile"><h3>Market Reports & CMA</h3><p>Home values and market updates for your sphere; CMA from the tools page.</p><a class="btn small" href="#/marketing">Open</a></div>
+      <div class="mtile"><h3>Mass Email</h3><p>Write once, send to a group of your contacts. Tracy approves the wording first.</p><a class="btn small" href="#/marketing">Open</a></div>
+    </div>
+    <div class="sechead">Coming soon</div><div class="mtiles">
+      ${["ListingMachine — automatic listing marketing","DesignCenter — flyers and templates","Voicemail Drop","Birthdays & Anniversaries","Hashtag Management","Behavioral Automation settings"].map(t=>{const [h,p]=t.split(" — ");return `<div class="mtile soon"><h3>${h}</h3><p>${p||""}</p><span class="btn small">Coming soon</span></div>`}).join("")}
+    </div>`],
+
+  "#/tasks": () => ["My Tasks", `<div class="chips"><a class="chip on" href="#/tasks">Due today · 2</a><a class="chip" href="#/tasks">Overdue · 3</a><a class="chip" href="#/tasks">Coming up</a></div>
+    <div class="box">${[["Call Jane Smith — new website lead","today"],["Call Marcus Bell — saved 88 Orchard Ln","today"],["Follow up with Tonya Reyes","overdue"],["Send CMA to Greg Lowe","overdue"],["Check in with Ana Morales","overdue"]]
+      .map(([t,w])=>`<div class="row"><input type="checkbox" aria-label="done"> <span>${t}</span> <span class="${w==="overdue"?"late":"meta"}">${w}</span></div>`).join("")}</div>`],
+
+  "#/b/roster": () => ["Agent roster", `<p class="note">The live roster page you already have (129 agents, feeds the CDA dropdown). Shown here only so the switch makes sense.</p>
+    <div class="tbl"><div class="tr th rr"><span>Agent</span><span>Office</span><span>CDA split · ARF</span><span>Plan</span><span>Needs a look</span></div>
+    <div class="tr rr"><span class="nm">Jonathan Fleming</span><span>Martinsburg</span><span>80% · ARF Standard</span><span>—</span><span>—</span></div>
+    <div class="tr rr"><span class="nm">Priscilla Lane</span><span>Bowie</span><span>70% · ARF Standard</span><span>—</span><span>—</span></div></div>`],
+
+  "#/b/routing": () => ["Lead routing", `<div class="box">
+    <div class="row"><span><b>DC ZIP</b> → Regina Parker</span></div>
+    <div class="row"><span><b>Maryland ZIP</b> → Priscilla Lane, Regina Parker taking turns</span></div>
+    <div class="row"><span><b>Everywhere else</b> → Jonathan Fleming, Gavin Washington, Tracy Adams taking turns</span></div>
+    <div class="row"><span><b>Not contacted in 48 hours</b> → back to that area's office pond</span></div></div>
+    <p class="note">These rules are live today.</p>`],
+
+  "#/b/ponds": () => ["Ponds", `<div class="box"><div class="row"><span><b>Martinsburg office leads</b> — 2 waiting</span></div><div class="row"><span><b>Bowie office leads</b> — 1 waiting</span></div><div class="row"><span><b>Front Royal office leads</b> — 0 waiting</span></div></div>`],
+  "#/b/plans": () => ["Follow-up plans", `<div class="box"><div class="row"><span><b>New buyer lead, 30 days</b> — 6 steps (3 calls, 3 emails). Emails held until Tracy approves wording.</span></div></div>`],
+  "#/b/compliance": () => ["Compliance", `<p>Opens the CCDA Desk you use today.</p><p><a class="btn" href="https://cda.ribbonway.com/compliance/" target="_blank" rel="noopener">Open the CCDA Desk</a></p>`],
+  "#/b/emails": () => ["Held emails", `<div class="box"><div class="row"><span><b>Homes you looked at</b> → Jane Smith · held</span></div><div class="row"><span><b>Still looking?</b> → Ana Morales · held</span></div></div>`],
+};
+
+function route() {
+  const h = VIEWS[location.hash] ? location.hash : "#/today";
+  const [title, html] = VIEWS[h]();
+  $("title").textContent = title; app.innerHTML = html; nav(h);
+  $("side").classList.remove("open"); window.scrollTo(0, 0);
+}
+$("menubtn").onclick = () => $("side").classList.toggle("open");
+addEventListener("hashchange", route); route();
+</script>
+</body>
+</html>
